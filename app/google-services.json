@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "416737966841",
+    "firebase_url": "https://mascotanunicos-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "mascotanunicos",
+    "storage_bucket": "mascotanunicos.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416737966841:android:6c1b1e01c1003e49978028",
+        "android_client_info": {
+          "package_name": "com.dgp.mascotanuncios"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416737966841-1m0opafclt2qvvtq0oa9n9jne1j95qcu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA56YdWIsdlz2-_A26BT3TkKzKEtLPx9Pk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416737966841-1m0opafclt2qvvtq0oa9n9jne1j95qcu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
