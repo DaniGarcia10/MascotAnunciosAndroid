@@ -15,11 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.dgp.mascotanuncios.R;
 import com.dgp.mascotanuncios.model.Anuncio;
-import com.dgp.mascotanuncios.model.Usuario;
-import com.dgp.mascotanuncios.repository.CriaderosRepository;
 import com.dgp.mascotanuncios.service.ImagenService;
 import com.dgp.mascotanuncios.activity.AnuncioDetailActivity;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 import java.util.List;
@@ -30,8 +27,6 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
     private static final String TAG = "AnuncioAdapter";
     private final List<Anuncio> lista;
     private final ImagenService storageHelper;
-
-    private final CriaderosRepository criaderosRepo = new CriaderosRepository();
 
     public AnuncioAdapter(List<Anuncio> lista) {
         this.lista = lista;
@@ -131,47 +126,13 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
             v.getContext().startActivity(intent);
         });
 
-        // --- Cargar datos del criadero ---
-        String idUsuario = anuncio.getId_usuario();
-        if (idUsuario != null) {
-            // Obtener el usuario para extraer su id_criadero
-            FirebaseFirestore.getInstance().collection("usuarios").document(idUsuario)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Usuario usuario = documentSnapshot.toObject(Usuario.class);
-                        String idCriadero = usuario != null ? usuario.getId_criadero() : null;
-                        if (idCriadero != null && !idCriadero.isEmpty()) {
-                            criaderosRepo.obtenerCriaderoPorId(idCriadero, new CriaderosRepository.CriaderoCallback() {
-                                @Override
-                                public void onSuccess(com.dgp.mascotanuncios.model.Criadero criadero) {
-                                    if (criadero != null) {
-                                        holder.nombreCriadero.setText(criadero.getNombre());
-                                        holder.nucleoZoologico.setText(criadero.getNucleo_zoologico());
-                                        holder.verificado.setVisibility(criadero.getVerificado() != null && criadero.getVerificado() ? View.VISIBLE : View.GONE);
-                                        // Cargar imagen de perfil
-                                        if (criadero.getFoto_perfil() != null) {
-                                            Glide.with(holder.itemView.getContext())
-                                                    .load(criadero.getFoto_perfil())
-                                                    .placeholder(R.drawable.placeholder)
-                                                    .into(holder.imagenCriadero);
-                                        } else {
-                                            holder.imagenCriadero.setImageResource(R.drawable.placeholder);
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onError(Exception e) {
-                                }
-                            });
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                });
-        }
-        // --- FIN carga datos criadero ---
+        // --- Eliminar la lógica de carga de datos del criadero ---
+        // Ahora se asume que los datos de criadero ya están en el objeto anuncio o en un modelo extendido.
+        // Por ejemplo, si usas un modelo AnuncioConCriadero:
+        // holder.nombreCriadero.setText(anuncio.getNombreCriadero());
+        // holder.nucleoZoologico.setText(anuncio.getNucleoZoologico());
+        // holder.verificado.setVisibility(anuncio.isCriaderoVerificado() ? View.VISIBLE : View.GONE);
+        // Glide.with(holder.itemView.getContext()).load(anuncio.getFotoPerfilCriadero())...
     }
 
     @Override
@@ -183,9 +144,6 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
         TextView titulo, descripcion, raza, precio, edad, ubicacion, cintaDestacado, contadorFotos;
         TextView fecha; // Añadido
         ImageView imagen;
-        // --- Footer criadero ---
-        TextView nombreCriadero, nucleoZoologico, verificado;
-        ImageView imagenCriadero;
 
         public AnuncioViewHolder(View itemView) {
             super(itemView);
@@ -198,13 +156,7 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
             cintaDestacado = itemView.findViewById(R.id.cinta_destacado);
             imagen = itemView.findViewById(R.id.imagenAnuncio);
             contadorFotos = itemView.findViewById(R.id.contadorFotos);
-            fecha = itemView.findViewById(R.id.fecha); // Añadido
-
-            // --- Footer criadero ---
-            nombreCriadero = itemView.findViewById(R.id.nombreCriadero);
-            nucleoZoologico = itemView.findViewById(R.id.nucleoZoologico);
-            verificado = itemView.findViewById(R.id.verificado);
-            imagenCriadero = itemView.findViewById(R.id.imagenCriadero);
+            fecha = itemView.findViewById(R.id.fecha);
         }
     }
 }

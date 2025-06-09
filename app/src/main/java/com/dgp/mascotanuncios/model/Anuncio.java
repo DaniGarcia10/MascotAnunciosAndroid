@@ -21,6 +21,7 @@ public class Anuncio {
     private Double precio;
     private Boolean destacado;
     private String telefono;
+    private List<Cachorro> cachorros;
 
     // Constructor vacío requerido por Firebase
     public Anuncio() {}
@@ -76,4 +77,7 @@ public class Anuncio {
 
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public List<Cachorro> getCachorros() { return cachorros; }
+    public void setCachorros(List<Cachorro> cachorros) { this.cachorros = cachorros; }
 }

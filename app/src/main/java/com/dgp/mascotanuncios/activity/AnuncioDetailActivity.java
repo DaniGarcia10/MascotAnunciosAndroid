@@ -1,25 +1,32 @@
 package com.dgp.mascotanuncios.activity;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.dgp.mascotanuncios.R;
 import com.dgp.mascotanuncios.model.Anuncio;
+import com.dgp.mascotanuncios.model.Cachorro;
 import com.dgp.mascotanuncios.model.Criadero;
+import com.dgp.mascotanuncios.repository.CachorroRepository;
 import com.dgp.mascotanuncios.repository.CriaderosRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Map;
 
 public class AnuncioDetailActivity extends AppCompatActivity {
     private String anuncioId;
     private Anuncio anuncio;
     private Criadero criadero;
-    // Puedes agregar más campos para padre/madre/cachorros
+    private LinearLayout layoutCachorros; // Añadido
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,6 +39,8 @@ public class AnuncioDetailActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        layoutCachorros = findViewById(R.id.layoutCachorros); // Inicializa el contenedor
 
         cargarAnuncio();
     }
@@ -78,8 +87,25 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                             anuncio.setImagenes(imagenes);
                         }
 
-                        this.anuncio = anuncio;
-                        mostrarDatos();
+                        // --- Usar CachorroRepository para cargar cachorros ---
+                        new CachorroRepository().obtenerCachorrosPorAnuncio(anuncio.getId(), new CachorroRepository.CachorrosCallback() {
+                            @Override
+                            public void onSuccess(java.util.List<Cachorro> cachorros) {
+                                anuncio.setCachorros(cachorros);
+                                AnuncioDetailActivity.this.anuncio = anuncio;
+                                mostrarDatos();
+                            }
+                            @Override
+                            public void onError(Exception e) {
+                                AnuncioDetailActivity.this.anuncio = anuncio;
+                                mostrarDatos();
+                            }
+                        });
+                        // --- FIN NUEVO ---
+
+                        // Elimina la llamada directa a mostrarDatos() aquí
+                        // this.anuncio = anuncio;
+                        // mostrarDatos();
                     } else {
                         Toast.makeText(this, "Anuncio no encontrado", Toast.LENGTH_SHORT).show();
                         finish();
@@ -148,6 +174,46 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                 });
         }
         // Puedes cargar padre/madre/cachorros aquí
+
+        // Cargar cachorros si existen
+        layoutCachorros.removeAllViews();
+        if (anuncio.getCachorros() != null && !anuncio.getCachorros().isEmpty()) {
+            LayoutInflater inflater = LayoutInflater.from(this);
+            for (Cachorro cachorro : anuncio.getCachorros()) {
+                // Mostrar solo si está disponible
+                if (cachorro.getDisponible() == null || !cachorro.getDisponible()) continue;
+
+                View card = inflater.inflate(R.layout.item_cachorro, layoutCachorros, false);
+
+                ImageView ivCachorro = card.findViewById(R.id.ivCachorro);
+                TextView tvPrecioCachorro = card.findViewById(R.id.tvPrecioCachorro);
+                TextView tvSexoCachorro = card.findViewById(R.id.tvSexoCachorro);
+                TextView tvColorCachorro = card.findViewById(R.id.tvColorCachorro);
+
+                // Imagen del cachorro (si hay imágenes)
+                if (cachorro.getImagenes() != null && !cachorro.getImagenes().isEmpty()) {
+                    Glide.with(this)
+                        .load(cachorro.getImagenes().get(0))
+                        .placeholder(R.drawable.placeholder)
+                        .into(ivCachorro);
+                } else {
+                    ivCachorro.setImageResource(R.drawable.placeholder);
+                }
+
+                // Precio del cachorro
+                if (cachorro.getPrecio() != null) {
+                    tvPrecioCachorro.setText(cachorro.getPrecio() + "€");
+                } else {
+                    tvPrecioCachorro.setText("Precio no disponible");
+                }
+
+                // Sexo y color
+                tvSexoCachorro.setText("Sexo: " + (cachorro.getSexo() != null ? cachorro.getSexo() : "-"));
+                tvColorCachorro.setText("Color: " + (cachorro.getColor() != null ? cachorro.getColor() : "-"));
+
+                layoutCachorros.addView(card);
+            }
+        }
     }
 
     private void mostrarCriadero() {

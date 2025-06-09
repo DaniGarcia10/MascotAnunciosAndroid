@@ -152,6 +152,14 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Contenedor dinámico para tarjetas de cachorros -->
+        <LinearLayout
+            android:id="@+id/layoutCachorros"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp" />
+
         <!-- Aquí puedes añadir cards para padre/madre/cachorros si lo deseas -->
 
     </LinearLayout>
