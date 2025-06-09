@@ -1,0 +1,185 @@
+package com.dgp.mascotanuncios.activity;
+
+import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Button;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
+import com.dgp.mascotanuncios.R;
+import com.dgp.mascotanuncios.model.Anuncio;
+import com.dgp.mascotanuncios.model.Criadero;
+import com.dgp.mascotanuncios.repository.CriaderosRepository;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+public class AnuncioDetailActivity extends AppCompatActivity {
+    private String anuncioId;
+    private Anuncio anuncio;
+    private Criadero criadero;
+    // Puedes agregar más campos para padre/madre/cachorros
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_anuncio_detail);
+
+        anuncioId = getIntent().getStringExtra("anuncio_id");
+        if (anuncioId == null) {
+            Toast.makeText(this, "Anuncio no encontrado", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        cargarAnuncio();
+    }
+
+    // En AnuncioDetailActivity.java, método cargarAnuncio()
+    private void cargarAnuncio() {
+        FirebaseFirestore.getInstance().collection("anuncios").document(anuncioId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Anuncio anuncio = new Anuncio();
+                        anuncio.setId(documentSnapshot.getId());
+                        anuncio.setTitulo(documentSnapshot.getString("titulo"));
+                        anuncio.setDescripcion(documentSnapshot.getString("descripcion"));
+                        anuncio.setUbicacion(documentSnapshot.getString("ubicacion"));
+                        anuncio.setPerro(documentSnapshot.getBoolean("perro"));
+                        anuncio.setRaza(documentSnapshot.getString("raza"));
+                        anuncio.setEdad(documentSnapshot.getString("edad"));
+                        anuncio.setId_padre(documentSnapshot.getString("id_padre"));
+                        anuncio.setId_madre(documentSnapshot.getString("id_madre"));
+                        anuncio.setId_usuario(documentSnapshot.getString("id_usuario"));
+                        anuncio.setActivo(documentSnapshot.getBoolean("activo"));
+                        anuncio.setEspecificar_cachorros(documentSnapshot.getBoolean("especificar_cachorros"));
+                        anuncio.setDestacado(documentSnapshot.getBoolean("destacado"));
+                        anuncio.setTelefono(documentSnapshot.getString("telefono"));
+                        anuncio.setPrecio(documentSnapshot.getDouble("precio"));
+
+                        // Fecha: Timestamp o String
+                        Object fecha = documentSnapshot.get("fecha_publicacion");
+                        if (fecha instanceof com.google.firebase.Timestamp) {
+                            anuncio.setFecha_publicacion(((com.google.firebase.Timestamp) fecha).toDate());
+                        } else if (fecha instanceof String) {
+                            try {
+                                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+                                anuncio.setFecha_publicacion(sdf.parse((String) fecha));
+                            } catch (java.text.ParseException e) {
+                                anuncio.setFecha_publicacion(null);
+                            }
+                        }
+
+                        // Imágenes
+                        java.util.List<String> imagenes = (java.util.List<String>) documentSnapshot.get("imagenes");
+                        if (imagenes != null) {
+                            anuncio.setImagenes(imagenes);
+                        }
+
+                        this.anuncio = anuncio;
+                        mostrarDatos();
+                    } else {
+                        Toast.makeText(this, "Anuncio no encontrado", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al cargar anuncio", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+    }
+
+    private void mostrarDatos() {
+        // Título, fecha, raza, ubicación, edad, descripción
+        TextView tvTitulo = findViewById(R.id.tvTitulo);
+        TextView tvFecha = findViewById(R.id.tvFecha);
+        TextView tvRaza = findViewById(R.id.tvRaza);
+        TextView tvUbicacion = findViewById(R.id.tvUbicacion);
+        TextView tvEdad = findViewById(R.id.tvEdad);
+        TextView tvDescripcion = findViewById(R.id.tvDescripcion);
+
+        tvTitulo.setText(anuncio.getTitulo());
+        tvFecha.setText(getFechaRelativa(anuncio.getFecha_publicacion()));
+        tvRaza.setText(anuncio.getRaza());
+        tvUbicacion.setText(anuncio.getUbicacion());
+        tvEdad.setText(anuncio.getEdad());
+        tvDescripcion.setText(anuncio.getDescripcion());
+
+        // Galería de imágenes (solo la principal, puedes expandirlo a ViewPager)
+        ImageView ivPrincipal = findViewById(R.id.ivPrincipal);
+        if (anuncio.getImagenes() != null && !anuncio.getImagenes().isEmpty()) {
+            Glide.with(this)
+                .load(anuncio.getImagenes().get(0))
+                .placeholder(R.drawable.placeholder)
+                .into(ivPrincipal);
+        }
+
+        // Precio
+        TextView tvPrecio = findViewById(R.id.tvPrecio);
+        if (anuncio.getPrecio() != null) {
+            tvPrecio.setText(anuncio.getPrecio() + "€");
+        }
+
+        // Teléfono
+        Button btnTelefono = findViewById(R.id.btnTelefono);
+        btnTelefono.setOnClickListener(v -> {
+            Toast.makeText(this, "Teléfono: " + anuncio.getTelefono(), Toast.LENGTH_SHORT).show();
+        });
+
+        // Cargar datos del criadero
+        if (anuncio.getId_usuario() != null) {
+            FirebaseFirestore.getInstance().collection("usuarios").document(anuncio.getId_usuario())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    String idCriadero = documentSnapshot.getString("id_criadero");
+                    if (idCriadero != null) {
+                        new CriaderosRepository().obtenerCriaderoPorId(idCriadero, new CriaderosRepository.CriaderoCallback() {
+                            @Override
+                            public void onSuccess(Criadero c) {
+                                criadero = c;
+                                mostrarCriadero();
+                            }
+                            @Override
+                            public void onError(Exception e) {}
+                        });
+                    }
+                });
+        }
+        // Puedes cargar padre/madre/cachorros aquí
+    }
+
+    private void mostrarCriadero() {
+        if (criadero == null) return;
+        TextView tvCriaderoNombre = findViewById(R.id.tvCriaderoNombre);
+        TextView tvCriaderoUbicacion = findViewById(R.id.tvCriaderoUbicacion);
+        TextView tvCriaderoNucleo = findViewById(R.id.tvCriaderoNucleo);
+        TextView tvCriaderoFecha = findViewById(R.id.tvCriaderoFecha);
+        ImageView ivCriadero = findViewById(R.id.ivCriadero);
+
+        tvCriaderoNombre.setText(criadero.getNombre());
+        tvCriaderoUbicacion.setText(criadero.getUbicacion());
+        tvCriaderoNucleo.setText(criadero.getNucleo_zoologico());
+        tvCriaderoFecha.setText(criadero.getFecha_registro());
+        if (criadero.getFoto_perfil() != null) {
+            Glide.with(this).load(criadero.getFoto_perfil()).placeholder(R.drawable.placeholder).into(ivCriadero);
+        }
+    }
+
+    // Copiado de AnuncioAdapter para unificar el formato de fecha relativa
+    private String getFechaRelativa(java.util.Date fechaPub) {
+        if (fechaPub == null) return "";
+        long diffMillis = System.currentTimeMillis() - fechaPub.getTime();
+        long diffHoras = diffMillis / (1000 * 60 * 60);
+        long diffDias = diffMillis / (1000 * 60 * 60 * 24);
+
+        if (diffDias >= 1) {
+            return "Hace " + diffDias + (diffDias == 1 ? " día" : " días");
+        } else if (diffHoras >= 1) {
+            return "Hace " + diffHoras + (diffHoras == 1 ? " hora" : " horas");
+        } else {
+            return "Hace menos de 1 hora";
+        }
+    }
+}

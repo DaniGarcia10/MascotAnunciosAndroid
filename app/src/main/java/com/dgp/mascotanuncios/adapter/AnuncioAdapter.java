@@ -18,6 +18,7 @@ import com.dgp.mascotanuncios.model.Anuncio;
 import com.dgp.mascotanuncios.model.Usuario;
 import com.dgp.mascotanuncios.repository.CriaderosRepository;
 import com.dgp.mascotanuncios.service.ImagenService;
+import com.dgp.mascotanuncios.activity.AnuncioDetailActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
@@ -103,12 +104,6 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
                                 .placeholder(R.drawable.placeholder)
                                 .error(R.drawable.placeholder)
                                 .into(holder.imagen);
-
-                        // Para ver la imagen a pantalla completa al pulsar
-                        holder.itemView.setOnClickListener(v -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                            v.getContext().startActivity(intent);
-                        });
                     },
                     error -> {
                         Log.e("FIREBASE_IMG", "❌ Error al obtener URL", error);
@@ -128,6 +123,13 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
             holder.imagen.setImageResource(R.drawable.placeholder);
             holder.contadorFotos.setVisibility(View.GONE);
         }
+
+        // Siempre abrir detalle al pulsar el anuncio
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), AnuncioDetailActivity.class);
+            intent.putExtra("anuncio_id", anuncio.getId());
+            v.getContext().startActivity(intent);
+        });
 
         // --- Cargar datos del criadero ---
         String idUsuario = anuncio.getId_usuario();

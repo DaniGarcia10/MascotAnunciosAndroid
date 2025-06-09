@@ -1,4 +1,4 @@
-package com.dgp.mascotanuncios;
+package com.dgp.mascotanuncios.activity;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -7,10 +7,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dgp.mascotanuncios.R;
 import com.dgp.mascotanuncios.adapter.AnuncioAdapter;
 import com.dgp.mascotanuncios.model.Anuncio;
 import com.dgp.mascotanuncios.repository.AnunciosRepository;
-import com.dgp.mascotanuncios.adapter.AnuncioAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
