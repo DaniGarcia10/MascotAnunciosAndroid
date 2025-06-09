@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_anuncio"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -56,66 +57,92 @@
                 </FrameLayout>
 
                 <!-- Texto -->
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_weight="2"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="240dp">
 
-                    <TextView android:id="@+id/fecha"
+                    <TextView
+                        android:id="@+id/fecha"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="12sp"
-                        android:textColor="#777" />
+                        android:textColor="#777"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView android:id="@+id/titulo"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/titulo"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:maxLines="2"
-                        android:ellipsize="end" />
+                        android:ellipsize="end"
+                        app:layout_constraintTop_toBottomOf="@id/fecha"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
-                    <TextView android:id="@+id/precio"
+                    <TextView
+                        android:id="@+id/precio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@android:color/holo_green_dark"
                         android:textStyle="bold"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        app:layout_constraintTop_toBottomOf="@id/titulo"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView android:id="@+id/raza"
+                    <TextView
+                        android:id="@+id/raza"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@android:color/darker_gray"
                         android:textColor="@android:color/white"
                         android:padding="4dp"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toBottomOf="@id/precio"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView android:id="@+id/edad"
+                    <TextView
+                        android:id="@+id/edad"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toBottomOf="@id/raza"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView android:id="@+id/ubicacion"
+                    <TextView
+                        android:id="@+id/ubicacion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toBottomOf="@id/edad"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView android:id="@+id/descripcion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <TextView
+                        android:id="@+id/descripcion"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
                         android:maxLines="3"
                         android:ellipsize="end"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        app:layout_constraintTop_toBottomOf="@id/ubicacion"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/footer" />
 
-                    <!-- Footer MOVIDO AQUÍ -->
+                    <!-- Footer SIEMPRE ABAJO -->
                     <LinearLayout
                         android:id="@+id/footer"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingTop="8dp"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
 
                         <ImageView
                             android:id="@+id/imagenCriadero"
@@ -153,7 +180,7 @@
                             android:textSize="12sp" />
                     </LinearLayout>
                     <!-- FIN FOOTER -->
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
 
             <!-- Cinta DESTACADO recta y pegada arriba a la derecha -->
