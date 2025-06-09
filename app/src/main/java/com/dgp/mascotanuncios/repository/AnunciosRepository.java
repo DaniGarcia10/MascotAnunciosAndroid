@@ -71,7 +71,7 @@ public class AnunciosRepository {
                                 if (img.startsWith("http")) {
                                     nuevas.add(img);
                                 } else {
-                                    nuevas.add("https://firebasestorage.googleapis.com/v0/b/<tu-proyecto>.appspot.com/o/anuncios%2F"
+                                    nuevas.add("https://firebasestorage.googleapis.com/v0/b/mascotanunicos.firebasestorage.app/o/anuncios%2F"
                                             + doc.getId() + "%2F" + img + "?alt=media");
                                 }
                             }

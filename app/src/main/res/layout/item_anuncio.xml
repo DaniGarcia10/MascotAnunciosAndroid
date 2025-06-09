@@ -1,12 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:orientation="vertical" android:padding="16dp">
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_anuncio"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:elevation="6dp"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@drawable/bg_card_destacado">
 
-    <TextView android:id="@+id/tituloAnuncio"
-        android:textStyle="bold" android:textSize="18sp"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
 
-    <TextView android:id="@+id/descripcionAnuncio"
-        android:layout_width="wrap_content" android:layout_height="wrap_content" />
-</LinearLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Contenido principal en horizontal -->
+            <LinearLayout
+                android:id="@+id/contenido_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Imagen -->
+                <FrameLayout
+                    android:id="@+id/contenedor_imagen"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="240dp"
+                    android:layout_marginEnd="8dp">
+
+                    <ImageView
+                        android:id="@+id/imagenAnuncio"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/placeholder" />
+
+                    <TextView
+                        android:id="@+id/contadorFotos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="6dp"
+                        android:padding="4dp"
+                        android:background="#88000000"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <!-- Texto -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView android:id="@+id/fecha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="#777" />
+
+                    <TextView android:id="@+id/titulo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <TextView android:id="@+id/precio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/holo_green_dark"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView android:id="@+id/raza"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/darker_gray"
+                        android:textColor="@android:color/white"
+                        android:padding="4dp"
+                        android:textSize="12sp" />
+
+                    <TextView android:id="@+id/edad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp" />
+
+                    <TextView android:id="@+id/ubicacion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp" />
+
+                    <TextView android:id="@+id/descripcion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:textSize="12sp" />
+
+                    <!-- Footer MOVIDO AQUÍ -->
+                    <LinearLayout
+                        android:id="@+id/footer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="8dp"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/imagenCriadero"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:scaleType="centerCrop"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/placeholder" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView android:id="@+id/nombreCriadero"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                android:textSize="12sp" />
+
+                            <TextView android:id="@+id/nucleoZoologico"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/verificado"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="✓ Verificado"
+                            android:textColor="@android:color/holo_green_dark"
+                            android:textStyle="bold"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                    <!-- FIN FOOTER -->
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Cinta DESTACADO recta y pegada arriba a la derecha -->
+            <TextView
+                android:id="@+id/cinta_destacado"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:text="★ Destacado"
+                android:background="@drawable/cinta_diagonal"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:visibility="gone"
+                android:layout_gravity="top|end"
+                android:gravity="center"
+                android:rotation="0"
+                android:translationX="0dp"
+                android:translationY="0dp" />
+        </FrameLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
