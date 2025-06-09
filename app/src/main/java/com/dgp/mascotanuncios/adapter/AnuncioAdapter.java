@@ -15,11 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.dgp.mascotanuncios.R;
 import com.dgp.mascotanuncios.model.Anuncio;
+import com.dgp.mascotanuncios.model.Criadero;
 import com.dgp.mascotanuncios.service.ImagenService;
 import com.dgp.mascotanuncios.activity.AnuncioDetailActivity;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioViewHolder> {
@@ -27,6 +31,9 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
     private static final String TAG = "AnuncioAdapter";
     private final List<Anuncio> lista;
     private final ImagenService storageHelper;
+
+    // Caché en memoria para criaderos ya consultados
+    private final Map<String, Criadero> criaderoCache = new HashMap<>();
 
     public AnuncioAdapter(List<Anuncio> lista) {
         this.lista = lista;
@@ -71,9 +78,15 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
         holder.titulo.setText(anuncio.getTitulo());
         holder.raza.setText(anuncio.getRaza());
         holder.descripcion.setText(anuncio.getDescripcion());
-        holder.precio.setText(anuncio.getPrecio() != null ? anuncio.getPrecio() + "€" : "Precio no disponible");
+        // Mostrar precio como int (sin decimales)
+        if (anuncio.getPrecio() != null) {
+            int precioInt = anuncio.getPrecio().intValue();
+            holder.precio.setText(precioInt + "€");
+        } else {
+            holder.precio.setText("Precio no disponible");
+        }
         holder.edad.setText(anuncio.getEdad());
-        holder.ubicacion.setText("📍 " + (anuncio.getUbicacion() != null ? anuncio.getUbicacion() : "Sin ubicación"));
+        holder.ubicacion.setText((anuncio.getUbicacion() != null ? anuncio.getUbicacion() : "Sin ubicación"));
 
         if (Boolean.TRUE.equals(anuncio.getDestacado())) {
             holder.cintaDestacado.setVisibility(View.VISIBLE);
@@ -119,20 +132,45 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
             holder.contadorFotos.setVisibility(View.GONE);
         }
 
+        // Footer: nombre y núcleo zoológico del criadero
+        holder.nombreCriadero.setText(""); // Limpia antes de cargar
+        holder.ubicacionCriadero.setText("");
+
+        if (anuncio.getId_usuario() != null) {
+            FirebaseFirestore.getInstance().collection("usuarios").document(anuncio.getId_usuario())
+                .get()
+                .addOnSuccessListener(usuarioDoc -> {
+                    String idCriadero = usuarioDoc.getString("id_criadero");
+                    if (idCriadero != null) {
+                        if (criaderoCache.containsKey(idCriadero)) {
+                            Criadero criadero = criaderoCache.get(idCriadero);
+                            if (criadero != null) {
+                                holder.nombreCriadero.setText(criadero.getNombre() != null ? criadero.getNombre() : "");
+                                // Mostrar ubicación del criadero en vez de núcleo zoológico
+                                holder.ubicacionCriadero.setText(criadero.getUbicacion() != null ? criadero.getUbicacion() : "");
+                            }
+                        } else {
+                            FirebaseFirestore.getInstance().collection("criaderos").document(idCriadero)
+                                .get()
+                                .addOnSuccessListener(criaderoDoc -> {
+                                    Criadero criadero = criaderoDoc.toObject(Criadero.class);
+                                    criaderoCache.put(idCriadero, criadero);
+                                    if (criadero != null) {
+                                        holder.nombreCriadero.setText(criadero.getNombre() != null ? criadero.getNombre() : "");
+                                        holder.ubicacionCriadero.setText(criadero.getUbicacion() != null ? criadero.getUbicacion() : "");
+                                    }
+                                });
+                        }
+                    }
+                });
+        }
+
         // Siempre abrir detalle al pulsar el anuncio
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), AnuncioDetailActivity.class);
             intent.putExtra("anuncio_id", anuncio.getId());
             v.getContext().startActivity(intent);
         });
-
-        // --- Eliminar la lógica de carga de datos del criadero ---
-        // Ahora se asume que los datos de criadero ya están en el objeto anuncio o en un modelo extendido.
-        // Por ejemplo, si usas un modelo AnuncioConCriadero:
-        // holder.nombreCriadero.setText(anuncio.getNombreCriadero());
-        // holder.nucleoZoologico.setText(anuncio.getNucleoZoologico());
-        // holder.verificado.setVisibility(anuncio.isCriaderoVerificado() ? View.VISIBLE : View.GONE);
-        // Glide.with(holder.itemView.getContext()).load(anuncio.getFotoPerfilCriadero())...
     }
 
     @Override
@@ -142,8 +180,9 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
 
     public static class AnuncioViewHolder extends RecyclerView.ViewHolder {
         TextView titulo, descripcion, raza, precio, edad, ubicacion, cintaDestacado, contadorFotos;
-        TextView fecha; // Añadido
+        TextView fecha;
         ImageView imagen;
+        TextView nombreCriadero, ubicacionCriadero;
 
         public AnuncioViewHolder(View itemView) {
             super(itemView);
@@ -157,6 +196,8 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
             imagen = itemView.findViewById(R.id.imagenAnuncio);
             contadorFotos = itemView.findViewById(R.id.contadorFotos);
             fecha = itemView.findViewById(R.id.fecha);
+            nombreCriadero = itemView.findViewById(R.id.nombreCriadero);
+            ubicacionCriadero = itemView.findViewById(R.id.ubicacionCriadero);
         }
     }
 }

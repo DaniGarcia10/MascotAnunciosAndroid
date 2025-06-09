@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:layout_marginTop="16dp">
+    android:layout_marginTop="40dp"
+    android:background="@color/footer_criadero">
 
     <LinearLayout
         android:orientation="vertical"
@@ -12,13 +13,6 @@
         android:padding="16dp">
 
         <!-- Título y fecha -->
-        <TextView
-            android:id="@+id/tvTitulo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:paddingBottom="4dp" />
 
         <TextView
             android:id="@+id/tvFecha"
@@ -28,6 +22,27 @@
             android:textSize="12sp"
             android:paddingBottom="8dp" />
 
+        <TextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:paddingBottom="4dp" />
+
+        <!-- Precio encima de la imagen -->
+        <TextView
+            android:id="@+id/tvPrecio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:background="@drawable/bg_marron_app"
+            android:drawablePadding="4dp"
+            android:padding="6dp"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"/>
+
         <!-- Imagen principal -->
         <ImageView
             android:id="@+id/ivPrincipal"
@@ -36,7 +51,7 @@
             android:scaleType="centerCrop"
             android:contentDescription="Imagen principal" />
 
-        <!-- Raza, ubicación, edad -->
+        <!-- Raza, ubicación, edad más visual -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -44,28 +59,44 @@
             android:gravity="center_vertical"
             android:paddingTop="8dp">
 
+            <!-- Raza -->
             <TextView
                 android:id="@+id/tvRaza"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/darker_gray"
+                android:background="@drawable/bg_marron_app"
                 android:textColor="@android:color/white"
-                android:padding="4dp"
+                android:drawableLeft="@drawable/ic_shield"
+                android:drawablePadding="4dp"
+                android:padding="6dp"
                 android:textSize="14sp"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="2dp" />
 
+            <!-- Ubicación con icono -->
             <TextView
                 android:id="@+id/tvUbicacion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_marron_app"
+                android:drawableLeft="@drawable/location_on_24dp"
+                android:drawablePadding="4dp"
+                android:padding="6dp"
+                android:textColor="@android:color/white"
                 android:textSize="14sp"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="2dp"/>
 
+            <!-- Edad con icono -->
             <TextView
                 android:id="@+id/tvEdad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp" />
+                android:background="@drawable/bg_marron_app"
+                android:drawableLeft="@drawable/ic_cake"
+                android:drawablePadding="4dp"
+                android:padding="6dp"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"/>
         </LinearLayout>
 
         <!-- Descripción -->
@@ -77,30 +108,16 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp" />
 
-        <!-- Precio y botón teléfono -->
-        <LinearLayout
-            android:orientation="horizontal"
+        <!-- Botón teléfono ocupa todo el ancho -->
+        <Button
+            android:id="@+id/btnTelefono"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingBottom="8dp">
-
-            <TextView
-                android:id="@+id/tvPrecio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_green_dark"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_marginEnd="16dp" />
-
-            <Button
-                android:id="@+id/btnTelefono"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ver teléfono"
-                android:drawableLeft="@android:drawable/ic_menu_call" />
-        </LinearLayout>
+            android:text="Ver teléfono"
+            android:drawableLeft="@android:drawable/ic_menu_call"
+            android:backgroundTint="@color/marron_app"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="8dp" />
 
         <!-- Datos del criadero -->
         <LinearLayout
@@ -108,7 +125,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_card_destacado"
+            android:background="@color/footer_criadero"
             android:padding="8dp"
             android:layout_marginTop="8dp">
 
@@ -150,7 +167,28 @@
                     android:layout_height="wrap_content"
                     android:textSize="13sp" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/verificado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓ Verificado"
+                android:textColor="@android:color/holo_green_dark"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:layout_marginStart="12dp" />
         </LinearLayout>
+
+        <!-- Teléfono debajo del criadero -->
+        <TextView
+            android:id="@+id/tvTelefono"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="10dp"
+            android:visibility="gone" />
 
         <!-- Contenedor dinámico para tarjetas de cachorros -->
         <LinearLayout

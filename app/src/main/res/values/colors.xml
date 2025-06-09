@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="marron_app">#8b5e3c</color>
+    <color name="footer_criadero">#f5f5dc</color>
 </resources>

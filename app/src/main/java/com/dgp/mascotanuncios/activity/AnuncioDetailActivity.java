@@ -101,11 +101,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                                 mostrarDatos();
                             }
                         });
-                        // --- FIN NUEVO ---
 
-                        // Elimina la llamada directa a mostrarDatos() aquí
-                        // this.anuncio = anuncio;
-                        // mostrarDatos();
                     } else {
                         Toast.makeText(this, "Anuncio no encontrado", Toast.LENGTH_SHORT).show();
                         finish();
@@ -145,7 +141,8 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         // Precio
         TextView tvPrecio = findViewById(R.id.tvPrecio);
         if (anuncio.getPrecio() != null) {
-            tvPrecio.setText(anuncio.getPrecio() + "€");
+            int precioInt = anuncio.getPrecio().intValue();
+            tvPrecio.setText(precioInt + "€");
         }
 
         // Teléfono
@@ -189,6 +186,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                 TextView tvPrecioCachorro = card.findViewById(R.id.tvPrecioCachorro);
                 TextView tvSexoCachorro = card.findViewById(R.id.tvSexoCachorro);
                 TextView tvColorCachorro = card.findViewById(R.id.tvColorCachorro);
+                ImageView ivSexoIcon = card.findViewById(R.id.ivSexoIcon); // <-- Añadido
 
                 // Imagen del cachorro (si hay imágenes)
                 if (cachorro.getImagenes() != null && !cachorro.getImagenes().isEmpty()) {
@@ -202,14 +200,27 @@ public class AnuncioDetailActivity extends AppCompatActivity {
 
                 // Precio del cachorro
                 if (cachorro.getPrecio() != null) {
-                    tvPrecioCachorro.setText(cachorro.getPrecio() + "€");
+                    int precioInt = cachorro.getPrecio().intValue();
+                    tvPrecioCachorro.setText(precioInt + "€");
                 } else {
                     tvPrecioCachorro.setText("Precio no disponible");
                 }
 
                 // Sexo y color
-                tvSexoCachorro.setText("Sexo: " + (cachorro.getSexo() != null ? cachorro.getSexo() : "-"));
-                tvColorCachorro.setText("Color: " + (cachorro.getColor() != null ? cachorro.getColor() : "-"));
+                String sexo = (cachorro.getSexo() != null ? cachorro.getSexo() : "-");
+                tvSexoCachorro.setText(sexo);
+                tvColorCachorro.setText((cachorro.getColor() != null ? cachorro.getColor() : "-"));
+
+                // Mostrar icono de sexo
+                if (sexo.equalsIgnoreCase("macho")) {
+                    ivSexoIcon.setImageResource(R.drawable.ic_male);
+                    ivSexoIcon.setVisibility(View.VISIBLE);
+                } else if (sexo.equalsIgnoreCase("hembra")) {
+                    ivSexoIcon.setImageResource(R.drawable.ic_female);
+                    ivSexoIcon.setVisibility(View.VISIBLE);
+                } else {
+                    ivSexoIcon.setVisibility(View.GONE);
+                }
 
                 layoutCachorros.addView(card);
             }
@@ -223,14 +234,42 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         TextView tvCriaderoNucleo = findViewById(R.id.tvCriaderoNucleo);
         TextView tvCriaderoFecha = findViewById(R.id.tvCriaderoFecha);
         ImageView ivCriadero = findViewById(R.id.ivCriadero);
+        TextView tvVerificado = findViewById(R.id.verificado);
 
         tvCriaderoNombre.setText(criadero.getNombre());
         tvCriaderoUbicacion.setText(criadero.getUbicacion());
-        tvCriaderoNucleo.setText(criadero.getNucleo_zoologico());
-        tvCriaderoFecha.setText(criadero.getFecha_registro());
+        tvCriaderoNucleo.setText("Nucleo zoologico: " + criadero.getNucleo_zoologico());
+        // Formatear la fecha como "Se unió el dd/mm/aaaa"
+        String fechaRegistro = criadero.getFecha_registro();
+        if (fechaRegistro != null && !fechaRegistro.isEmpty()) {
+            try {
+                // Intentar parsear la fecha si viene en formato ISO o yyyy-MM-dd
+                java.text.SimpleDateFormat sdfInput;
+                if (fechaRegistro.contains("T")) {
+                    sdfInput = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault());
+                } else if (fechaRegistro.contains("-")) {
+                    sdfInput = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+                } else {
+                    sdfInput = null;
+                }
+                String fechaFormateada = fechaRegistro;
+                if (sdfInput != null) {
+                    java.util.Date date = sdfInput.parse(fechaRegistro);
+                    java.text.SimpleDateFormat sdfOutput = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+                    fechaFormateada = sdfOutput.format(date);
+                }
+                tvCriaderoFecha.setText("Se unió el " + fechaFormateada);
+            } catch (Exception e) {
+                tvCriaderoFecha.setText("Se unió el " + fechaRegistro);
+            }
+        } else {
+            tvCriaderoFecha.setText("");
+        }
         if (criadero.getFoto_perfil() != null) {
             Glide.with(this).load(criadero.getFoto_perfil()).placeholder(R.drawable.placeholder).into(ivCriadero);
         }
+        // Mostrar el verificado siempre (puedes poner lógica si solo algunos criaderos son verificados)
+        tvVerificado.setVisibility(View.VISIBLE);
     }
 
     // Copiado de AnuncioAdapter para unificar el formato de fecha relativa

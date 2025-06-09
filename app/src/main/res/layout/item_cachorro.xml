@@ -5,13 +5,15 @@
     android:layout_marginBottom="12dp"
     android:layout_marginTop="4dp"
     android:layout_marginHorizontal="4dp"
-    android:elevation="4dp">
+    android:elevation="4dp"
+    android:background="@color/footer_criadero">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:background="@color/footer_criadero">
 
         <ImageView
             android:id="@+id/ivCachorro"
@@ -20,30 +22,63 @@
             android:scaleType="centerCrop"
             android:contentDescription="Imagen del cachorro" />
 
-        <TextView
-            android:id="@+id/tvPrecioCachorro"
+
+        <!-- Nuevo LinearLayout horizontal para sexo y color -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
+            android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:textColor="@android:color/holo_green_dark" />
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvSexoCachorro"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"
-            android:textColor="@android:color/black" />
+            <!-- Chip de precio -->
+            <TextView
+                android:id="@+id/tvPrecioCachorro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_marron_app"
+                android:textColor="@android:color/white"
+                android:drawablePadding="4dp"
+                android:padding="6dp"
+                android:textSize="14sp"
+                android:layout_marginEnd="2dp"/>
 
-        <TextView
-            android:id="@+id/tvColorCachorro"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginTop="2dp"
-            android:textColor="@android:color/black" />
+            <!-- Chip de sexo con icono -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_marron_app"
+                android:gravity="center_vertical"
+                android:layout_marginEnd="2dp">
+
+                <ImageView
+                    android:id="@+id/ivSexoIcon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:contentDescription="Icono sexo" />
+
+                <TextView
+                    android:id="@+id/tvSexoCachorro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:drawablePadding="4dp"
+                    android:padding="6dp"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <!-- Chip de color -->
+            <TextView
+                android:id="@+id/tvColorCachorro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_marron_app"
+                android:textSize="14sp"
+                android:drawablePadding="4dp"
+                android:padding="6dp"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
