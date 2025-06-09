@@ -63,19 +63,10 @@ public class AnunciosRepository {
                             }
                         }
 
-                        // Imágenes
+                        // Imágenes (guardar directamente los nombres tal como están en Firestore)
                         List<String> imagenes = (List<String>) doc.get("imagenes");
                         if (imagenes != null) {
-                            List<String> nuevas = new ArrayList<>();
-                            for (String img : imagenes) {
-                                if (img.startsWith("http")) {
-                                    nuevas.add(img);
-                                } else {
-                                    nuevas.add("https://firebasestorage.googleapis.com/v0/b/mascotanunicos.firebasestorage.app/o/anuncios%2F"
-                                            + doc.getId() + "%2F" + img + "?alt=media");
-                                }
-                            }
-                            anuncio.setImagenes(nuevas);
+                            anuncio.setImagenes(imagenes);
                         }
 
                         lista.add(anuncio);

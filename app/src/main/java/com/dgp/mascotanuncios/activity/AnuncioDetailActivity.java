@@ -132,6 +132,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         // Galería de imágenes (solo la principal, puedes expandirlo a ViewPager)
         ImageView ivPrincipal = findViewById(R.id.ivPrincipal);
         if (anuncio.getImagenes() != null && !anuncio.getImagenes().isEmpty()) {
+            android.util.Log.d("IMAGEN - AnuncioDetailActivity", "Cargando imagen principal: " + anuncio.getImagenes().get(0));
             Glide.with(this)
                 .load(anuncio.getImagenes().get(0))
                 .placeholder(R.drawable.placeholder)
@@ -190,6 +191,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
 
                 // Imagen del cachorro (si hay imágenes)
                 if (cachorro.getImagenes() != null && !cachorro.getImagenes().isEmpty()) {
+                    android.util.Log.d("IMAGEN - AnuncioDetailActivity", "Cargando imagen cachorro: " + cachorro.getImagenes().get(0));
                     Glide.with(this)
                         .load(cachorro.getImagenes().get(0))
                         .placeholder(R.drawable.placeholder)
@@ -266,6 +268,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
             tvCriaderoFecha.setText("");
         }
         if (criadero.getFoto_perfil() != null) {
+            android.util.Log.d("IMAGEN - AnuncioDetailActivity", "Cargando imagen criadero: " + criadero.getFoto_perfil());
             Glide.with(this).load(criadero.getFoto_perfil()).placeholder(R.drawable.placeholder).into(ivCriadero);
         }
         // Mostrar el verificado siempre (puedes poner lógica si solo algunos criaderos son verificados)

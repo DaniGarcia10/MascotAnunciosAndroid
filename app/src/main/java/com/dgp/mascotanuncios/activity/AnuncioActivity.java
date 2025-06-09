@@ -15,7 +15,7 @@ import com.dgp.mascotanuncios.repository.AnunciosRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class AnuncioActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private AnuncioAdapter adapter;
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_anuncio);
 
         recyclerView = findViewById(R.id.recyclerAnuncios);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

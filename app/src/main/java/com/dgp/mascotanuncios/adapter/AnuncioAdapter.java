@@ -101,12 +101,14 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
         }
 
         if (anuncio.getImagenes() != null && !anuncio.getImagenes().isEmpty()) {
-            String rutaFirebase = "anuncios/" + anuncio.getId() + "/" + anuncio.getImagenes().get(0);
-            Log.d("DEBUG_RUTA", "📁 Ruta a cargar: " + rutaFirebase);
+            String nombreImagen = anuncio.getImagenes().get(0);
+            String rutaStorage = "anuncios/" + anuncio.getId() + "/" + nombreImagen;
 
-            storageHelper.obtenerUrlImagen(rutaFirebase,
+            Log.d("IMAGEN - AnuncioAdapter", "📁 Ruta a cargar: " + rutaStorage);
+
+            storageHelper.obtenerUrlImagen(rutaStorage,
                     uri -> {
-                        Log.d("FIREBASE_IMG", "✅ URL obtenida: " + uri.toString());
+                        Log.d("IMAGEN - AnuncioAdapter", "✅ URL obtenida: " + uri.toString());
                         Glide.with(holder.itemView.getContext())
                                 .load(uri)
                                 .placeholder(R.drawable.placeholder)
@@ -114,10 +116,11 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
                                 .into(holder.imagen);
                     },
                     error -> {
-                        Log.e("FIREBASE_IMG", "❌ Error al obtener URL", error);
+                        Log.e("IMAGEN - AnuncioAdapter", "❌ Error al obtener URL", error);
                         holder.imagen.setImageResource(R.drawable.placeholder);
                     }
             );
+
 
             int total = anuncio.getImagenes().size();
             if (total > 1) {
