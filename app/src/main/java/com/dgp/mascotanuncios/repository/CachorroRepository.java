@@ -22,6 +22,11 @@ public class CachorroRepository {
                     for (var doc : querySnapshot.getDocuments()) {
                         Cachorro cachorro = doc.toObject(Cachorro.class);
                         cachorro.setId(doc.getId());
+                        // Solo guardar los nombres de las imágenes, no URLs
+                        List<String> imagenes = (List<String>) doc.get("imagenes");
+                        if (imagenes != null) {
+                            cachorro.setImagenes(imagenes);
+                        }
                         cachorros.add(cachorro);
                     }
                     callback.onSuccess(cachorros);

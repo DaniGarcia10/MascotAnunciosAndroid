@@ -8,18 +8,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import android.graphics.drawable.Drawable;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
 import com.dgp.mascotanuncios.R;
 import com.dgp.mascotanuncios.model.Anuncio;
 import com.dgp.mascotanuncios.model.Cachorro;
 import com.dgp.mascotanuncios.model.Criadero;
+import com.dgp.mascotanuncios.model.Mascota;
 import com.dgp.mascotanuncios.repository.CachorroRepository;
 import com.dgp.mascotanuncios.repository.CriaderosRepository;
+import com.dgp.mascotanuncios.repository.MascotasRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.dgp.mascotanuncios.service.ImagenService;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class AnuncioDetailActivity extends AppCompatActivity {
@@ -27,6 +36,12 @@ public class AnuncioDetailActivity extends AppCompatActivity {
     private Anuncio anuncio;
     private Criadero criadero;
     private LinearLayout layoutCachorros; // Añadido
+    private ImageView ivPadre, ivMadre;   // Añadido para fotos de padres
+    private ViewPager2 viewPager;
+    private ImagePagerAdapter imagePagerAdapter;
+    private ImageView btnPrev, btnNext, btnFullscreen;
+    private static final String TAG_IMG = "IMAGEN - AnuncioDetail";
+    private final ImagenService storageHelper = new ImagenService();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,6 +56,28 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         }
 
         layoutCachorros = findViewById(R.id.layoutCachorros); // Inicializa el contenedor
+
+        // Inicializa los ImageView de los padres
+        ivPadre = findViewById(R.id.ivPadre);
+        ivMadre = findViewById(R.id.ivMadre);
+
+        // Inicializa el ViewPager2 y las flechas
+        viewPager = findViewById(R.id.viewPagerAnuncio);
+        btnPrev = findViewById(R.id.btnPrev);
+        btnNext = findViewById(R.id.btnNext);
+        btnFullscreen = findViewById(R.id.btnFullscreen);
+
+        btnPrev.setOnClickListener(v -> {
+            int prev = viewPager.getCurrentItem() - 1;
+            if (prev >= 0) viewPager.setCurrentItem(prev, true);
+        });
+        btnNext.setOnClickListener(v -> {
+            int next = viewPager.getCurrentItem() + 1;
+            if (imagePagerAdapter != null && next < imagePagerAdapter.getItemCount())
+                viewPager.setCurrentItem(next, true);
+        });
+
+        btnFullscreen.setOnClickListener(v -> mostrarImagenFullscreen());
 
         cargarAnuncio();
     }
@@ -129,14 +166,19 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         tvEdad.setText(anuncio.getEdad());
         tvDescripcion.setText(anuncio.getDescripcion());
 
-        // Galería de imágenes (solo la principal, puedes expandirlo a ViewPager)
-        ImageView ivPrincipal = findViewById(R.id.ivPrincipal);
+        // Galería de imágenes con ViewPager2
         if (anuncio.getImagenes() != null && !anuncio.getImagenes().isEmpty()) {
-            android.util.Log.d("IMAGEN - AnuncioDetailActivity", "Cargando imagen principal: " + anuncio.getImagenes().get(0));
-            Glide.with(this)
-                .load(anuncio.getImagenes().get(0))
-                .placeholder(R.drawable.placeholder)
-                .into(ivPrincipal);
+            imagePagerAdapter = new ImagePagerAdapter(anuncio.getImagenes(), anuncio.getId(), storageHelper, this);
+            viewPager.setAdapter(imagePagerAdapter);
+            viewPager.setVisibility(View.VISIBLE);
+            btnPrev.setVisibility(View.VISIBLE);
+            btnNext.setVisibility(View.VISIBLE);
+            btnFullscreen.setVisibility(View.VISIBLE);
+        } else {
+            viewPager.setVisibility(View.GONE);
+            btnPrev.setVisibility(View.GONE);
+            btnNext.setVisibility(View.GONE);
+            btnFullscreen.setVisibility(View.GONE);
         }
 
         // Precio
@@ -173,8 +215,33 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         }
         // Puedes cargar padre/madre/cachorros aquí
 
-        // Cargar cachorros si existen
+        // Cargar cachorros si existen y mostrar título si corresponde
         layoutCachorros.removeAllViews();
+        boolean mostrarTituloCachorros = false;
+        int cachorrosDisponibles = 0;
+
+        if (anuncio.getCachorros() != null && !anuncio.getCachorros().isEmpty()) {
+            // Contar cachorros disponibles
+            for (Cachorro cachorro : anuncio.getCachorros()) {
+                if (cachorro.getDisponible() != null && cachorro.getDisponible()) {
+                    cachorrosDisponibles++;
+                }
+            }
+            // Mostrar título solo si especificar_cachorros es true y hay al menos 1 disponible
+            if (anuncio.getEspecificar_cachorros() != null && anuncio.getEspecificar_cachorros() && cachorrosDisponibles > 0) {
+                mostrarTituloCachorros = true;
+            }
+        }
+
+        if (mostrarTituloCachorros) {
+            TextView tvTituloCachorros = new TextView(this);
+            tvTituloCachorros.setText("Cachorros disponibles");
+            tvTituloCachorros.setTextSize(18);
+            tvTituloCachorros.setTypeface(tvTituloCachorros.getTypeface(), android.graphics.Typeface.BOLD); // Corregido aquí
+            tvTituloCachorros.setPadding(0, 12, 0, 8);
+            layoutCachorros.addView(tvTituloCachorros);
+        }
+
         if (anuncio.getCachorros() != null && !anuncio.getCachorros().isEmpty()) {
             LayoutInflater inflater = LayoutInflater.from(this);
             for (Cachorro cachorro : anuncio.getCachorros()) {
@@ -191,12 +258,27 @@ public class AnuncioDetailActivity extends AppCompatActivity {
 
                 // Imagen del cachorro (si hay imágenes)
                 if (cachorro.getImagenes() != null && !cachorro.getImagenes().isEmpty()) {
-                    android.util.Log.d("IMAGEN - AnuncioDetailActivity", "Cargando imagen cachorro: " + cachorro.getImagenes().get(0));
-                    Glide.with(this)
-                        .load(cachorro.getImagenes().get(0))
-                        .placeholder(R.drawable.placeholder)
-                        .into(ivCachorro);
+                    String nombreImagenCachorro = cachorro.getImagenes().get(0);
+                    // CAMBIO: Usar id_anuncio en la ruta
+                    String rutaStorageCachorro = "cachorros/" + cachorro.getId_anuncio() + "/" + nombreImagenCachorro;
+                    Log.d(TAG_IMG, "Intentando cargar imagen cachorro: " + nombreImagenCachorro + " | Ruta: " + rutaStorageCachorro);
+                    storageHelper.obtenerUrlImagen(rutaStorageCachorro,
+                        uri -> {
+                            Log.d(TAG_IMG, "URL obtenida para imagen cachorro: " + uri);
+                            Glide.with(this)
+                                .load(uri)
+                                .placeholder(R.drawable.placeholder)
+                                .error(R.drawable.placeholder)
+                                .into(ivCachorro);
+                        },
+                        error -> {
+                            Log.e(TAG_IMG, "Error al obtener URL de imagen cachorro: " + nombreImagenCachorro, error);
+                            ivCachorro.setImageResource(R.drawable.placeholder);
+                            Log.w(TAG_IMG, "Mostrando placeholder para cachorro sin imagen: " + cachorro.getId());
+                        }
+                    );
                 } else {
+                    Log.w(TAG_IMG, "Cachorro sin imágenes, usando placeholder. ID: " + cachorro.getId());
                     ivCachorro.setImageResource(R.drawable.placeholder);
                 }
 
@@ -227,10 +309,118 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                 layoutCachorros.addView(card);
             }
         }
+
+        // Cargar fotos de los padres debajo de los cachorros
+        cargarPadres();
+    }
+
+    private void cargarPadres() {
+        MascotasRepository mascotasRepository = new MascotasRepository();
+
+        // Obtener referencias a los layouts de las cards de padre y madre
+        View padreCard = findViewById(R.id.cardPadre);
+        View madreCard = findViewById(R.id.cardMadre);
+
+        // Padre
+        if (anuncio.getId_padre() != null && !anuncio.getId_padre().isEmpty()) {
+            Log.d("IMAGENPADRES", "Buscando datos del padre con id: " + anuncio.getId_padre());
+            mascotasRepository.obtenerMascotaPorId(anuncio.getId_padre(), new MascotasRepository.MascotaCallback() {
+                @Override
+                public void onSuccess(Mascota padre) {
+                    if (padre != null && padre.getImagenes() != null && !padre.getImagenes().isEmpty()) {
+                        String nombreImagenPadre = padre.getImagenes().get(0);
+                        String rutaStoragePadre = "mascotas/" + anuncio.getId_usuario() + "/" + nombreImagenPadre;
+                        Log.d("IMAGENPADRES", "Intentando cargar imagen del padre: " + nombreImagenPadre + " | Ruta: " + rutaStoragePadre);
+                        storageHelper.obtenerUrlImagen(rutaStoragePadre,
+                            uri -> {
+                                Log.d("IMAGENPADRES", "URL obtenida para imagen del padre: " + uri);
+                                Glide.with(AnuncioDetailActivity.this)
+                                        .load(uri)
+                                        .placeholder(R.drawable.placeholder)
+                                        .error(R.drawable.placeholder)
+                                        .into(ivPadre);
+                            },
+                            error -> {
+                                Log.e("IMAGENPADRES", "Error al obtener URL de imagen del padre: " + nombreImagenPadre, error);
+                                ivPadre.setImageResource(R.drawable.placeholder);
+                            }
+                        );
+                    } else {
+                        Log.w("IMAGENPADRES", "El padre no tiene imágenes, usando placeholder.");
+                        ivPadre.setImageResource(R.drawable.placeholder);
+                    }
+                }
+                @Override
+                public void onError(Exception e) {
+                    Log.e("IMAGENPADRES", "Error al obtener datos del padre", e);
+                    ivPadre.setImageResource(R.drawable.placeholder);
+                }
+            });
+        } else {
+            Log.w("IMAGENPADRES", "No hay id_padre en el anuncio, ocultando card de padre.");
+            // Oculta la card del padre
+            if (padreCard instanceof View) {
+                ((View) padreCard).setVisibility(View.GONE);
+            } else {
+                ivPadre.setVisibility(View.GONE);
+                TextView tvPadre = findViewById(R.id.tvPadre);
+                if (tvPadre != null) tvPadre.setVisibility(View.GONE);
+            }
+        }
+
+        // Madre
+        if (anuncio.getId_madre() != null && !anuncio.getId_madre().isEmpty()) {
+            Log.d("IMAGENPADRES", "Buscando datos de la madre con id: " + anuncio.getId_madre());
+            mascotasRepository.obtenerMascotaPorId(anuncio.getId_madre(), new MascotasRepository.MascotaCallback() {
+                @Override
+                public void onSuccess(Mascota madre) {
+                    if (madre != null && madre.getImagenes() != null && !madre.getImagenes().isEmpty()) {
+                        String nombreImagenMadre = madre.getImagenes().get(0);
+                        String rutaStorageMadre = "mascotas/" + anuncio.getId_usuario() + "/" + nombreImagenMadre;
+                        Log.d("IMAGENPADRES", "Intentando cargar imagen de la madre: " + nombreImagenMadre + " | Ruta: " + rutaStorageMadre);
+                        storageHelper.obtenerUrlImagen(rutaStorageMadre,
+                            uri -> {
+                                Log.d("IMAGENPADRES", "URL obtenida para imagen de la madre: " + uri);
+                                Glide.with(AnuncioDetailActivity.this)
+                                        .load(uri)
+                                        .placeholder(R.drawable.placeholder)
+                                        .error(R.drawable.placeholder)
+                                        .into(ivMadre);
+                            },
+                            error -> {
+                                Log.e("IMAGENPADRES", "Error al obtener URL de imagen de la madre: " + nombreImagenMadre, error);
+                                ivMadre.setImageResource(R.drawable.placeholder);
+                            }
+                        );
+                    } else {
+                        Log.w("IMAGENPADRES", "La madre no tiene imágenes, usando placeholder.");
+                        ivMadre.setImageResource(R.drawable.placeholder);
+                    }
+                }
+                @Override
+                public void onError(Exception e) {
+                    Log.e("IMAGENPADRES", "Error al obtener datos de la madre", e);
+                    ivMadre.setImageResource(R.drawable.placeholder);
+                }
+            });
+        } else {
+            Log.w("IMAGENPADRES", "No hay id_madre en el anuncio, ocultando card de madre.");
+            // Oculta la card de la madre
+            if (madreCard instanceof View) {
+                ((View) madreCard).setVisibility(View.GONE);
+            } else {
+                ivMadre.setVisibility(View.GONE);
+                TextView tvMadre = findViewById(R.id.tvMadre);
+                if (tvMadre != null) tvMadre.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void mostrarCriadero() {
-        if (criadero == null) return;
+        if (criadero == null) {
+            Log.w("IMAGENCRIADERO", "No hay criadero para mostrar");
+            return;
+        }
         TextView tvCriaderoNombre = findViewById(R.id.tvCriaderoNombre);
         TextView tvCriaderoUbicacion = findViewById(R.id.tvCriaderoUbicacion);
         TextView tvCriaderoNucleo = findViewById(R.id.tvCriaderoNucleo);
@@ -268,8 +458,23 @@ public class AnuncioDetailActivity extends AppCompatActivity {
             tvCriaderoFecha.setText("");
         }
         if (criadero.getFoto_perfil() != null) {
-            android.util.Log.d("IMAGEN - AnuncioDetailActivity", "Cargando imagen criadero: " + criadero.getFoto_perfil());
-            Glide.with(this).load(criadero.getFoto_perfil()).placeholder(R.drawable.placeholder).into(ivCriadero);
+            // LOG extra para depuración
+            String nombreImagenCriadero = criadero.getFoto_perfil();
+            String rutaStorageCriadero = "criaderos/" + nombreImagenCriadero;
+            storageHelper.obtenerUrlImagen(rutaStorageCriadero,
+                uri -> {
+                    Glide.with(this)
+                        .load(uri)
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.placeholder)
+                        .into(ivCriadero);
+                },
+                error -> {
+                    ivCriadero.setImageResource(R.drawable.placeholder);
+                }
+            );
+        } else {
+            Log.w("IMAGENCRIADERO", "El criadero no tiene foto_perfil");
         }
         // Mostrar el verificado siempre (puedes poner lógica si solo algunos criaderos son verificados)
         tvVerificado.setVisibility(View.VISIBLE);
@@ -289,5 +494,106 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         } else {
             return "Hace menos de 1 hora";
         }
+    }
+
+    // Adapter para ViewPager2
+    private static class ImagePagerAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder> {
+        private final java.util.List<String> imagenes;
+        private final String anuncioId;
+        private final ImagenService storageHelper;
+        private final android.content.Context context;
+
+        public ImagePagerAdapter(java.util.List<String> imagenes, String anuncioId, ImagenService storageHelper, android.content.Context context) {
+            this.imagenes = imagenes != null ? imagenes : new ArrayList<>();
+            this.anuncioId = anuncioId;
+            this.storageHelper = storageHelper;
+            this.context = context;
+        }
+
+        @Override
+        public ImageViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
+            ImageView imageView = new ImageView(context);
+            imageView.setLayoutParams(new android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT // Cambiado de getDimension a MATCH_PARENT
+            ));
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            return new ImageViewHolder(imageView);
+        }
+
+        @Override
+        public void onBindViewHolder(ImageViewHolder holder, int position) {
+            String nombreImagen = imagenes.get(position);
+            String rutaStorage = "anuncios/" + anuncioId + "/" + nombreImagen;
+            storageHelper.obtenerUrlImagen(rutaStorage,
+                uri -> Glide.with(context)
+                        .load(uri)
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.placeholder)
+                        .into(holder.imageView),
+                error -> holder.imageView.setImageResource(R.drawable.placeholder)
+            );
+        }
+
+        @Override
+        public int getItemCount() {
+            return imagenes.size();
+        }
+
+        static class ImageViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+            ImageView imageView;
+            public ImageViewHolder(View itemView) {
+                super(itemView);
+                imageView = (ImageView) itemView;
+            }
+        }
+    }
+
+    private void mostrarImagenFullscreen() {
+        if (anuncio == null || anuncio.getImagenes() == null || anuncio.getImagenes().isEmpty()) return;
+        int pos = viewPager.getCurrentItem();
+        String nombreImagen = anuncio.getImagenes().get(pos);
+        String rutaStorage = "anuncios/" + anuncio.getId() + "/" + nombreImagen;
+
+        android.app.Dialog dialog = new android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+
+        // Crear un FrameLayout para superponer el botón de cerrar
+        android.widget.FrameLayout frameLayout = new android.widget.FrameLayout(this);
+
+        ImageView imageView = new ImageView(this);
+        imageView.setBackgroundColor(android.graphics.Color.BLACK);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageView.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+        ));
+
+        // Botón de cerrar
+        ImageView btnCerrar = new ImageView(this);
+        btnCerrar.setImageResource(R.drawable.ic_x_square);
+        int size = (int) getResources().getDimension(R.dimen.fullscreen_close_size);
+        android.widget.FrameLayout.LayoutParams closeParams = new android.widget.FrameLayout.LayoutParams(size, size);
+        closeParams.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+        closeParams.topMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
+        closeParams.rightMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
+        btnCerrar.setLayoutParams(closeParams);
+        btnCerrar.setBackgroundResource(R.drawable.bg_chip);
+        btnCerrar.setPadding(12, 12, 12, 12);
+        btnCerrar.setOnClickListener(v -> dialog.dismiss());
+
+        storageHelper.obtenerUrlImagen(rutaStorage,
+            uri -> Glide.with(this)
+                    .load(uri)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder)
+                    .into(imageView),
+            error -> imageView.setImageResource(R.drawable.placeholder)
+        );
+
+        frameLayout.addView(imageView);
+        frameLayout.addView(btnCerrar);
+
+        dialog.setContentView(frameLayout);
+        dialog.show();
     }
 }

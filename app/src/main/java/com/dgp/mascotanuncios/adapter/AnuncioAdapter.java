@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -138,6 +139,7 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
         // Footer: nombre y núcleo zoológico del criadero
         holder.nombreCriadero.setText(""); // Limpia antes de cargar
         holder.ubicacionCriadero.setText("");
+        holder.imagenCriadero.setImageResource(R.drawable.placeholder); // Limpia imagen antes de cargar
 
         if (anuncio.getId_usuario() != null) {
             FirebaseFirestore.getInstance().collection("usuarios").document(anuncio.getId_usuario())
@@ -147,21 +149,14 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
                     if (idCriadero != null) {
                         if (criaderoCache.containsKey(idCriadero)) {
                             Criadero criadero = criaderoCache.get(idCriadero);
-                            if (criadero != null) {
-                                holder.nombreCriadero.setText(criadero.getNombre() != null ? criadero.getNombre() : "");
-                                // Mostrar ubicación del criadero en vez de núcleo zoológico
-                                holder.ubicacionCriadero.setText(criadero.getUbicacion() != null ? criadero.getUbicacion() : "");
-                            }
+                            mostrarDatosCriadero(criadero, holder);
                         } else {
                             FirebaseFirestore.getInstance().collection("criaderos").document(idCriadero)
                                 .get()
                                 .addOnSuccessListener(criaderoDoc -> {
                                     Criadero criadero = criaderoDoc.toObject(Criadero.class);
                                     criaderoCache.put(idCriadero, criadero);
-                                    if (criadero != null) {
-                                        holder.nombreCriadero.setText(criadero.getNombre() != null ? criadero.getNombre() : "");
-                                        holder.ubicacionCriadero.setText(criadero.getUbicacion() != null ? criadero.getUbicacion() : "");
-                                    }
+                                    mostrarDatosCriadero(criadero, holder);
                                 });
                         }
                     }
@@ -176,6 +171,29 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
         });
     }
 
+    /**
+     * Muestra los datos del criadero en el holder, incluyendo la foto_perfil.
+     */
+    private void mostrarDatosCriadero(Criadero criadero, AnuncioViewHolder holder) {
+        if (criadero != null) {
+            holder.nombreCriadero.setText(criadero.getNombre() != null ? criadero.getNombre() : "");
+            holder.ubicacionCriadero.setText(criadero.getUbicacion() != null ? criadero.getUbicacion() : "");
+            // LOG para depuración de foto_perfil
+            Log.d("FOTOPERFILCRIADERO", "Intentando cargar foto_perfil: " + criadero.getFoto_perfil());
+            if (criadero.getFoto_perfil() != null) {
+                Log.d("FOTOPERFILCRIADERO", "foto_perfil NO es null: " + criadero.getFoto_perfil());
+                String rutaStorage = "criaderos/" + criadero.getFoto_perfil();
+                Log.d("FOTOPERFILCRIADERO", "Ruta completa a cargar: " + rutaStorage);
+                storageHelper.cargarEnImageView(holder.itemView.getContext(), rutaStorage, holder.imagenCriadero);
+            } else {
+                Log.d("FOTOPERFILCRIADERO", "foto_perfil ES null");
+                holder.imagenCriadero.setImageResource(R.drawable.placeholder);
+            }
+        } else {
+            Log.d("FOTOPERFILCRIADERO", "El objeto criadero es null");
+        }
+    }
+
     @Override
     public int getItemCount() {
         return lista.size();
@@ -184,7 +202,7 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
     public static class AnuncioViewHolder extends RecyclerView.ViewHolder {
         TextView titulo, descripcion, raza, precio, edad, ubicacion, cintaDestacado, contadorFotos;
         TextView fecha;
-        ImageView imagen;
+        ImageView imagen, imagenCriadero;
         TextView nombreCriadero, ubicacionCriadero;
 
         public AnuncioViewHolder(View itemView) {
@@ -201,6 +219,7 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.AnuncioV
             fecha = itemView.findViewById(R.id.fecha);
             nombreCriadero = itemView.findViewById(R.id.nombreCriadero);
             ubicacionCriadero = itemView.findViewById(R.id.ubicacionCriadero);
+            imagenCriadero = itemView.findViewById(R.id.imagenCriadero);
         }
     }
 }

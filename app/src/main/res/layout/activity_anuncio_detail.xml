@@ -1,204 +1,343 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="@color/footer_criadero">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
+    <!-- Logo de la app arriba -->
+    <ImageView
+        android:id="@+id/logoApp"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:padding="16dp">
+        android:src="@drawable/ic_logo_app"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="45dp"
+        android:adjustViewBounds="true"/>
 
-        <!-- Título y fecha -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/logoApp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:fillViewport="true"
+        android:background="@color/footer_criadero">
 
-        <TextView
-            android:id="@+id/tvFecha"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#888"
-            android:textSize="12sp"
-            android:paddingBottom="8dp" />
-
-        <TextView
-            android:id="@+id/tvTitulo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:paddingBottom="4dp" />
-
-        <!-- Precio encima de la imagen -->
-        <TextView
-            android:id="@+id/tvPrecio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:background="@drawable/bg_marron_app"
-            android:drawablePadding="4dp"
-            android:padding="6dp"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:layout_marginBottom="4dp"/>
-
-        <!-- Imagen principal -->
-        <ImageView
-            android:id="@+id/ivPrincipal"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Imagen principal" />
-
-        <!-- Raza, ubicación, edad más visual -->
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingTop="8dp">
+            android:padding="4dp">
 
-            <!-- Raza -->
+            <!-- Título y fecha -->
+
             <TextView
-                android:id="@+id/tvRaza"
+                android:id="@+id/tvFecha"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_marron_app"
-                android:textColor="@android:color/white"
-                android:drawableLeft="@drawable/ic_shield"
-                android:drawablePadding="4dp"
-                android:padding="6dp"
-                android:textSize="14sp"
-                android:layout_marginEnd="2dp" />
+                android:textColor="#888"
+                android:textSize="12sp"
+                android:paddingBottom="8dp" />
 
-            <!-- Ubicación con icono -->
             <TextView
-                android:id="@+id/tvUbicacion"
+                android:id="@+id/tvTitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:paddingBottom="4dp" />
+
+            <!-- Precio encima de la imagen -->
+            <TextView
+                android:id="@+id/tvPrecio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:background="@drawable/bg_marron_app"
-                android:drawableLeft="@drawable/location_on_24dp"
-                android:drawablePadding="4dp"
-                android:padding="6dp"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:layout_marginEnd="2dp"/>
-
-            <!-- Edad con icono -->
-            <TextView
-                android:id="@+id/tvEdad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_marron_app"
-                android:drawableLeft="@drawable/ic_cake"
                 android:drawablePadding="4dp"
                 android:padding="6dp"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
-                android:layout_marginEnd="2dp"/>
-        </LinearLayout>
+                android:layout_marginBottom="4dp"/>
 
-        <!-- Descripción -->
-        <TextView
-            android:id="@+id/tvDescripcion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
-
-        <!-- Botón teléfono ocupa todo el ancho -->
-        <Button
-            android:id="@+id/btnTelefono"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ver teléfono"
-            android:drawableLeft="@android:drawable/ic_menu_call"
-            android:backgroundTint="@color/marron_app"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Datos del criadero -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:background="@color/footer_criadero"
-            android:padding="8dp"
-            android:layout_marginTop="8dp">
-
-            <ImageView
-                android:id="@+id/ivCriadero"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/placeholder"
-                android:layout_marginEnd="8dp" />
-
+            <!-- Sustituye el ImageView principal por el ViewPager2 y flechas -->
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
 
-                <TextView
-                    android:id="@+id/tvCriaderoNombre"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="15sp" />
+                <ImageView
+                    android:id="@+id/btnPrev"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_arrow_left"
+                    android:background="?android:selectableItemBackground"
+                    android:contentDescription="Anterior"
+                    android:visibility="gone"
+                    android:padding="6dp"/>
 
-                <TextView
-                    android:id="@+id/tvCriaderoUbicacion"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp" />
+                <!-- Nuevo FrameLayout para superponer el botón fullscreen -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/anuncio_image_height"
+                    android:layout_weight="1">
 
-                <TextView
-                    android:id="@+id/tvCriaderoNucleo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp" />
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPagerAnuncio"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone"
+                        android:clipToPadding="false"
+                        android:clipChildren="false"
+                        android:overScrollMode="never"/>
 
-                <TextView
-                    android:id="@+id/tvCriaderoFecha"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp" />
+                    <ImageView
+                        android:id="@+id/btnFullscreen"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_fullscreen"
+                        android:background="@drawable/bg_chip"
+                        android:contentDescription="Pantalla completa"
+                        android:layout_gravity="top|end"
+                        android:padding="6dp"
+                        android:layout_margin="6dp"
+                        android:visibility="gone"/>
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/btnNext"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_arrow_right"
+                    android:background="?android:selectableItemBackground"
+                    android:contentDescription="Siguiente"
+                    android:visibility="gone"
+                    android:padding="6dp"/>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/verificado"
-                android:layout_width="wrap_content"
+            <!-- Raza, ubicación, edad más visual -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="✓ Verificado"
-                android:textColor="@android:color/holo_green_dark"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <!-- Raza -->
+                <TextView
+                    android:id="@+id/tvRaza"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_marron_app"
+                    android:textColor="@android:color/white"
+                    android:drawableLeft="@drawable/ic_shield"
+                    android:drawablePadding="4dp"
+                    android:padding="6dp"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="2dp" />
+
+                <!-- Ubicación con icono -->
+                <TextView
+                    android:id="@+id/tvUbicacion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_marron_app"
+                    android:drawableLeft="@drawable/location_on_24dp"
+                    android:drawablePadding="4dp"
+                    android:padding="6dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="2dp"/>
+
+                <!-- Edad con icono -->
+                <TextView
+                    android:id="@+id/tvEdad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_marron_app"
+                    android:drawableLeft="@drawable/ic_cake"
+                    android:drawablePadding="4dp"
+                    android:padding="6dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="2dp"/>
+            </LinearLayout>
+
+            <!-- Descripción -->
+            <TextView
+                android:id="@+id/tvDescripcion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+
+            <!-- Botón teléfono ocupa todo el ancho -->
+            <Button
+                android:id="@+id/btnTelefono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ver teléfono"
+                android:drawableLeft="@android:drawable/ic_menu_call"
+                android:backgroundTint="@color/marron_app"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Datos del criadero -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:background="@color/footer_criadero"
+                android:padding="8dp"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:id="@+id/ivCriadero"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/placeholder"
+                    android:layout_marginEnd="8dp" />
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvCriaderoNombre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tvCriaderoUbicacion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvCriaderoNucleo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvCriaderoFecha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/verificado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✓ Verificado"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    android:layout_marginStart="12dp" />
+            </LinearLayout>
+
+            <!-- Teléfono debajo del criadero -->
+            <TextView
+                android:id="@+id/tvTelefono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textSize="13sp"
-                android:layout_marginStart="12dp" />
+                android:gravity="center"
+                android:padding="10dp"
+                android:visibility="gone" />
+
+            <!-- Contenedor dinámico para tarjetas de cachorros -->
+            <LinearLayout
+                android:id="@+id/layoutCachorros"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp" />
+
+            <!-- Contenedor para fotos de los padres -->
+            <LinearLayout
+                android:id="@+id/layoutPadres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:id="@+id/cardPadre"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="2dp"
+                    android:paddingBottom="4dp">
+
+                    <ImageView
+                        android:id="@+id/ivPadre"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxWidth="300dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/placeholder" />
+
+                    <TextView
+                        android:id="@+id/tvPadre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Padre"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:paddingTop="4dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cardMadre"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="4dp"
+                    android:paddingBottom="4dp">
+
+                    <ImageView
+                        android:id="@+id/ivMadre"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxWidth="300dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/placeholder" />
+
+                    <TextView
+                        android:id="@+id/tvMadre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Madre"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:paddingTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <!-- Aquí puedes añadir cards para padre/madre/cachorros si lo deseas -->
+
         </LinearLayout>
-
-        <!-- Teléfono debajo del criadero -->
-        <TextView
-            android:id="@+id/tvTelefono"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:padding="10dp"
-            android:visibility="gone" />
-
-        <!-- Contenedor dinámico para tarjetas de cachorros -->
-        <LinearLayout
-            android:id="@+id/layoutCachorros"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="12dp" />
-
-        <!-- Aquí puedes añadir cards para padre/madre/cachorros si lo deseas -->
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

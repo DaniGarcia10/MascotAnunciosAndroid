@@ -1,0 +1,7 @@
+<resources>
+    <!-- ...existing code... -->
+    <dimen name="anuncio_image_height">220dp</dimen>
+    <dimen name="fullscreen_close_size">44dp</dimen>
+    <dimen name="fullscreen_close_margin">16dp</dimen>
+    <!-- ...existing code... -->
+</resources>
