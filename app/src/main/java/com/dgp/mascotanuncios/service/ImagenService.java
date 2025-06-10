@@ -37,27 +37,6 @@ public class ImagenService {
                 });
     }
 
-
-    // Cargar varias URLs de imagen
-    public void cargarImagenes(List<String> rutas, OnCompleteListener<List<Uri>> onComplete) {
-        List<Task<Uri>> tareas = new ArrayList<>();
-
-        for (String ruta : rutas) {
-            StorageReference ref = storage.getReference().child(ruta);
-            tareas.add(ref.getDownloadUrl());
-        }
-
-        Tasks.whenAllSuccess(tareas)
-                .addOnSuccessListener(resultados -> {
-                    List<Uri> urls = new ArrayList<>();
-                    for (Object resultado : resultados) {
-                        urls.add((Uri) resultado);
-                    }
-                    onComplete.onComplete(Tasks.forResult(urls));
-                })
-                .addOnFailureListener(e -> onComplete.onComplete(Tasks.forException(e)));
-    }
-
     // Cargar una imagen directamente en un ImageView
     public void cargarEnImageView(Context context, String rutaStorage, ImageView imageView) {
         Log.d("IMAGEN - ImagenService", "Intentando cargar ruta: " + rutaStorage);

@@ -1,5 +1,6 @@
 package com.dgp.mascotanuncios.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,18 @@ public class AnuncioDetailActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anuncio_detail);
+
+        // Ir a MainActivity al pulsar el logo
+        ImageView logoApp = findViewById(R.id.logoApp);
+        logoApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AnuncioDetailActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         anuncioId = getIntent().getStringExtra("anuncio_id");
         if (anuncioId == null) {
@@ -419,7 +432,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         View madreCard = findViewById(R.id.cardMadre);
 
         // Padre
-        if (anuncio.getId_padre() != null && !anuncio.getId_padre().isEmpty()) { // <-- Corregido aquí
+        if (anuncio.getId_padre() != null && anuncio.getId_padre().isEmpty()) { // <-- Corregido aquí
             Log.d("IMAGENPADRES", "Buscando datos del padre con id: " + anuncio.getId_padre());
             mascotasRepository.obtenerMascotaPorId(anuncio.getId_padre(), new MascotasRepository.MascotaCallback() {
                 @Override
@@ -466,7 +479,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         }
 
         // Madre
-        if (anuncio.getId_madre() != null && !anuncio.getId_madre().isEmpty()) {
+        if (anuncio.getId_madre() != null && anuncio.getId_madre().isEmpty()) {
             Log.d("IMAGENPADRES", "Buscando datos de la madre con id: " + anuncio.getId_madre());
             mascotasRepository.obtenerMascotaPorId(anuncio.getId_madre(), new MascotasRepository.MascotaCallback() {
                 @Override
@@ -520,14 +533,12 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         }
         TextView tvCriaderoNombre = findViewById(R.id.tvCriaderoNombre);
         TextView tvCriaderoUbicacion = findViewById(R.id.tvCriaderoUbicacion);
-        TextView tvCriaderoNucleo = findViewById(R.id.tvCriaderoNucleo);
         TextView tvCriaderoFecha = findViewById(R.id.tvCriaderoFecha);
         ImageView ivCriadero = findViewById(R.id.ivCriadero);
         TextView tvVerificado = findViewById(R.id.verificado);
 
         tvCriaderoNombre.setText(criadero.getNombre());
         tvCriaderoUbicacion.setText(criadero.getUbicacion());
-        tvCriaderoNucleo.setText("Nucleo zoologico: " + criadero.getNucleo_zoologico());
         // Formatear la fecha como "Se unió el dd/mm/aaaa"
         String fechaRegistro = criadero.getFecha_registro();
         if (fechaRegistro != null && !fechaRegistro.isEmpty()) {

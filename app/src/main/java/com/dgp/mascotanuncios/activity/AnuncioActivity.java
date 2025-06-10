@@ -2,6 +2,9 @@ package com.dgp.mascotanuncios.activity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.content.Intent;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +29,18 @@ public class AnuncioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anuncio);
+
+        // Ir a MainActivity al pulsar el logo
+        ImageView logoApp = findViewById(R.id.logoApp);
+        logoApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AnuncioActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         recyclerView = findViewById(R.id.recyclerAnuncios);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
