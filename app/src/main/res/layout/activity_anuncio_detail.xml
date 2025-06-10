@@ -102,11 +102,11 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:src="@drawable/ic_fullscreen"
-                        android:background="@drawable/bg_chip"
                         android:contentDescription="Pantalla completa"
                         android:layout_gravity="top|end"
                         android:padding="6dp"
                         android:layout_margin="6dp"
+                        android:elevation="4dp"
                         android:visibility="gone"/>
                 </FrameLayout>
 
@@ -336,7 +336,6 @@
                         android:paddingTop="4dp"/>
                 </LinearLayout>
             </LinearLayout>
-            <!-- Aquí puedes añadir cards para padre/madre/cachorros si lo deseas -->
 
         </LinearLayout>
     </ScrollView>

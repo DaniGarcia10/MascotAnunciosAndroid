@@ -52,11 +52,11 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:src="@drawable/ic_fullscreen"
-                    android:background="@drawable/bg_chip"
                     android:contentDescription="Pantalla completa"
                     android:layout_gravity="top|end"
                     android:padding="4dp"
                     android:layout_margin="4dp"
+                    android:elevation="4dp"
                     android:visibility="gone"/>
             </FrameLayout>
 

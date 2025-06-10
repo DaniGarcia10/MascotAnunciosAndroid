@@ -61,6 +61,10 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         ivPadre = findViewById(R.id.ivPadre);
         ivMadre = findViewById(R.id.ivMadre);
 
+        // Añadir listeners para mostrar el modal de padre/madre
+        ivPadre.setOnClickListener(v -> mostrarModalPadreOMadre("padre"));
+        ivMadre.setOnClickListener(v -> mostrarModalPadreOMadre("madre"));
+
         // Inicializa el ViewPager2 y las flechas
         viewPager = findViewById(R.id.viewPagerAnuncio);
         btnPrev = findViewById(R.id.btnPrev);
@@ -317,7 +321,6 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                         closeParams.topMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
                         closeParams.rightMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
                         btnCerrar.setLayoutParams(closeParams);
-                        btnCerrar.setBackgroundResource(R.drawable.bg_chip);
                         btnCerrar.setPadding(12, 12, 12, 12);
                         btnCerrar.setOnClickListener(v2 -> dialog.dismiss());
 
@@ -416,7 +419,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         View madreCard = findViewById(R.id.cardMadre);
 
         // Padre
-        if (anuncio.getId_padre() != null && !anuncio.getId_padre().isEmpty()) {
+        if (anuncio.getId_padre() != null && !anuncio.getId_padre().isEmpty()) { // <-- Corregido aquí
             Log.d("IMAGENPADRES", "Buscando datos del padre con id: " + anuncio.getId_padre());
             mascotasRepository.obtenerMascotaPorId(anuncio.getId_padre(), new MascotasRepository.MascotaCallback() {
                 @Override
@@ -674,7 +677,6 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         closeParams.topMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
         closeParams.rightMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
         btnCerrar.setLayoutParams(closeParams);
-        btnCerrar.setBackgroundResource(R.drawable.bg_chip);
         btnCerrar.setPadding(12, 12, 12, 12);
         btnCerrar.setOnClickListener(v -> dialog.dismiss());
 
@@ -692,5 +694,122 @@ public class AnuncioDetailActivity extends AppCompatActivity {
 
         dialog.setContentView(frameLayout);
         dialog.show();
+    }
+
+    // Nuevo método para mostrar el modal de padre o madre
+    private void mostrarModalPadreOMadre(String tipo) {
+        MascotasRepository mascotasRepository = new MascotasRepository();
+        String idMascota = tipo.equals("padre") ? (anuncio != null ? anuncio.getId_padre() : null) : (anuncio != null ? anuncio.getId_madre() : null);
+        if (idMascota == null || idMascota.isEmpty()) return;
+
+        mascotasRepository.obtenerMascotaPorId(idMascota, new MascotasRepository.MascotaCallback() {
+            @Override
+            public void onSuccess(Mascota mascota) {
+                android.app.Dialog dialog = new android.app.Dialog(AnuncioDetailActivity.this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                android.widget.ScrollView scrollView = new android.widget.ScrollView(AnuncioDetailActivity.this);
+                android.widget.LinearLayout layout = new android.widget.LinearLayout(AnuncioDetailActivity.this);
+                layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+                layout.setPadding(40, 40, 40, 40);
+                layout.setBackgroundColor(android.graphics.Color.BLACK);
+
+                ImageView imageView = new ImageView(AnuncioDetailActivity.this);
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+                // Limitar el tamaño máximo de la imagen (ejemplo: 280dp de alto)
+                int maxHeightPx = (int) (280 * getResources().getDisplayMetrics().density);
+                android.widget.LinearLayout.LayoutParams imgParams = new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    maxHeightPx
+                );
+                imgParams.bottomMargin = 24;
+                imageView.setLayoutParams(imgParams);
+
+                // Cargar imagen
+                if (mascota.getImagenes() != null && !mascota.getImagenes().isEmpty()) {
+                    String nombreImagen = mascota.getImagenes().get(0);
+                    String rutaStorage = "mascotas/" + mascota.getId_usuario() + "/" + nombreImagen;
+                    storageHelper.obtenerUrlImagen(rutaStorage,
+                        uri -> Glide.with(AnuncioDetailActivity.this)
+                            .load(uri)
+                            .placeholder(R.drawable.placeholder)
+                            .error(R.drawable.placeholder)
+                            .into(imageView),
+                        error -> imageView.setImageResource(R.drawable.placeholder)
+                    );
+                } else {
+                    imageView.setImageResource(R.drawable.placeholder);
+                }
+
+                // Nombre
+                TextView tvNombre = new TextView(AnuncioDetailActivity.this);
+                tvNombre.setText(mascota.getNombre());
+                tvNombre.setTextColor(android.graphics.Color.WHITE);
+                tvNombre.setTextSize(22);
+                tvNombre.setTypeface(tvNombre.getTypeface(), android.graphics.Typeface.BOLD);
+                tvNombre.setMaxLines(1);
+                tvNombre.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                tvNombre.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ));
+
+                // Raza, color, descripción
+                TextView tvRaza = new TextView(AnuncioDetailActivity.this);
+                tvRaza.setText("Raza: " + (mascota.getRaza() != null ? mascota.getRaza() : "-"));
+                tvRaza.setTextColor(android.graphics.Color.WHITE);
+                tvRaza.setMaxLines(1);
+                tvRaza.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                tvRaza.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ));
+
+                TextView tvColor = new TextView(AnuncioDetailActivity.this);
+                tvColor.setText("Color: " + (mascota.getColor() != null ? mascota.getColor() : "-"));
+                tvColor.setTextColor(android.graphics.Color.WHITE);
+                tvColor.setMaxLines(1);
+                tvColor.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                tvColor.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ));
+
+                TextView tvDescripcion = new TextView(AnuncioDetailActivity.this);
+                tvDescripcion.setText(mascota.getDescripcion() != null ? mascota.getDescripcion() : "");
+                tvDescripcion.setTextColor(android.graphics.Color.WHITE);
+                tvDescripcion.setPadding(0, 20, 0, 0);
+                tvDescripcion.setMaxLines(5);
+                tvDescripcion.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                tvDescripcion.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ));
+
+                // Botón cerrar
+                ImageView btnCerrar = new ImageView(AnuncioDetailActivity.this);
+                btnCerrar.setImageResource(R.drawable.ic_x_square);
+                int size = (int) getResources().getDimension(R.dimen.fullscreen_close_size);
+                android.widget.LinearLayout.LayoutParams closeParams = new android.widget.LinearLayout.LayoutParams(size, size);
+                closeParams.gravity = android.view.Gravity.END;
+                btnCerrar.setLayoutParams(closeParams);
+                btnCerrar.setPadding(12, 12, 12, 12);
+                btnCerrar.setOnClickListener(v -> dialog.dismiss());
+
+                layout.addView(btnCerrar);
+                layout.addView(imageView);
+                layout.addView(tvNombre);
+                layout.addView(tvRaza);
+                layout.addView(tvColor);
+                layout.addView(tvDescripcion);
+
+                scrollView.addView(layout);
+                dialog.setContentView(scrollView);
+                dialog.show();
+            }
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(AnuncioDetailActivity.this, "No se pudo cargar la información", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
