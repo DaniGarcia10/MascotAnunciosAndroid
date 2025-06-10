@@ -166,14 +166,21 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         tvEdad.setText(anuncio.getEdad());
         tvDescripcion.setText(anuncio.getDescripcion());
 
-        // Galería de imágenes con ViewPager2
+        // Galería de imágenes con ViewPager2 (anuncio principal)
         if (anuncio.getImagenes() != null && !anuncio.getImagenes().isEmpty()) {
-            imagePagerAdapter = new ImagePagerAdapter(anuncio.getImagenes(), anuncio.getId(), storageHelper, this);
+            imagePagerAdapter = new ImagePagerAdapter(anuncio.getImagenes(), anuncio.getId(), "anuncios", storageHelper, this);
             viewPager.setAdapter(imagePagerAdapter);
             viewPager.setVisibility(View.VISIBLE);
-            btnPrev.setVisibility(View.VISIBLE);
-            btnNext.setVisibility(View.VISIBLE);
             btnFullscreen.setVisibility(View.VISIBLE);
+
+            // Mostrar/ocultar flechas según el número de imágenes
+            if (anuncio.getImagenes().size() > 1) {
+                btnPrev.setVisibility(View.VISIBLE);
+                btnNext.setVisibility(View.VISIBLE);
+            } else {
+                btnPrev.setVisibility(View.GONE);
+                btnNext.setVisibility(View.GONE);
+            }
         } else {
             viewPager.setVisibility(View.GONE);
             btnPrev.setVisibility(View.GONE);
@@ -249,6 +256,93 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                 if (cachorro.getDisponible() == null || !cachorro.getDisponible()) continue;
 
                 View card = inflater.inflate(R.layout.item_cachorro, layoutCachorros, false);
+
+                // --- Carrusel de imágenes para el cachorro ---
+                ViewPager2 viewPagerCachorro = card.findViewById(R.id.viewPagerCachorro);
+                ImageView btnPrevCachorro = card.findViewById(R.id.btnPrevCachorro);
+                ImageView btnNextCachorro = card.findViewById(R.id.btnNextCachorro);
+                ImageView btnFullscreenCachorro = card.findViewById(R.id.btnFullscreenCachorro);
+
+                if (cachorro.getImagenes() != null && !cachorro.getImagenes().isEmpty()) {
+                    ImagePagerAdapter adapterCachorro = new ImagePagerAdapter(
+                        cachorro.getImagenes(),
+                        cachorro.getId_anuncio(),
+                        "cachorros",
+                        storageHelper,
+                        this
+                    );
+                    viewPagerCachorro.setAdapter(adapterCachorro);
+                    viewPagerCachorro.setVisibility(View.VISIBLE);
+                    btnFullscreenCachorro.setVisibility(View.VISIBLE);
+
+                    // Mostrar/ocultar flechas según el número de imágenes
+                    if (cachorro.getImagenes().size() > 1) {
+                        btnPrevCachorro.setVisibility(View.VISIBLE);
+                        btnNextCachorro.setVisibility(View.VISIBLE);
+                    } else {
+                        btnPrevCachorro.setVisibility(View.GONE);
+                        btnNextCachorro.setVisibility(View.GONE);
+                    }
+
+                    btnPrevCachorro.setOnClickListener(v -> {
+                        int prev = viewPagerCachorro.getCurrentItem() - 1;
+                        if (prev >= 0) viewPagerCachorro.setCurrentItem(prev, true);
+                    });
+                    btnNextCachorro.setOnClickListener(v -> {
+                        int next = viewPagerCachorro.getCurrentItem() + 1;
+                        if (adapterCachorro != null && next < adapterCachorro.getItemCount())
+                            viewPagerCachorro.setCurrentItem(next, true);
+                    });
+                    btnFullscreenCachorro.setOnClickListener(v -> {
+                        int pos = viewPagerCachorro.getCurrentItem();
+                        String nombreImagen = cachorro.getImagenes().get(pos);
+                        String rutaStorage = "cachorros/" + cachorro.getId_anuncio() + "/" + nombreImagen;
+
+                        android.app.Dialog dialog = new android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                        android.widget.FrameLayout frameLayout = new android.widget.FrameLayout(this);
+
+                        ImageView imageView = new ImageView(this);
+                        imageView.setBackgroundColor(android.graphics.Color.BLACK);
+                        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        imageView.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                        ));
+
+                        ImageView btnCerrar = new ImageView(this);
+                        btnCerrar.setImageResource(R.drawable.ic_x_square);
+                        int size = (int) getResources().getDimension(R.dimen.fullscreen_close_size);
+                        android.widget.FrameLayout.LayoutParams closeParams = new android.widget.FrameLayout.LayoutParams(size, size);
+                        closeParams.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+                        closeParams.topMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
+                        closeParams.rightMargin = (int) getResources().getDimension(R.dimen.fullscreen_close_margin);
+                        btnCerrar.setLayoutParams(closeParams);
+                        btnCerrar.setBackgroundResource(R.drawable.bg_chip);
+                        btnCerrar.setPadding(12, 12, 12, 12);
+                        btnCerrar.setOnClickListener(v2 -> dialog.dismiss());
+
+                        storageHelper.obtenerUrlImagen(rutaStorage,
+                            uri -> Glide.with(this)
+                                    .load(uri)
+                                    .placeholder(R.drawable.placeholder)
+                                    .error(R.drawable.placeholder)
+                                    .into(imageView),
+                            error -> imageView.setImageResource(R.drawable.placeholder)
+                        );
+
+                        frameLayout.addView(imageView);
+                        frameLayout.addView(btnCerrar);
+
+                        dialog.setContentView(frameLayout);
+                        dialog.show();
+                    });
+                } else {
+                    viewPagerCachorro.setVisibility(View.GONE);
+                    btnPrevCachorro.setVisibility(View.GONE);
+                    btnNextCachorro.setVisibility(View.GONE);
+                    btnFullscreenCachorro.setVisibility(View.GONE);
+                }
+                // --- FIN Carrusel de imágenes para el cachorro ---
 
                 ImageView ivCachorro = card.findViewById(R.id.ivCachorro);
                 TextView tvPrecioCachorro = card.findViewById(R.id.tvPrecioCachorro);
@@ -499,13 +593,16 @@ public class AnuncioDetailActivity extends AppCompatActivity {
     // Adapter para ViewPager2
     private static class ImagePagerAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder> {
         private final java.util.List<String> imagenes;
-        private final String anuncioId;
+        private final String id;
+        private final String tipoCarpeta;
         private final ImagenService storageHelper;
         private final android.content.Context context;
 
-        public ImagePagerAdapter(java.util.List<String> imagenes, String anuncioId, ImagenService storageHelper, android.content.Context context) {
+        // Añadido tipoCarpeta para distinguir entre "anuncios" y "cachorros"
+        public ImagePagerAdapter(java.util.List<String> imagenes, String id, String tipoCarpeta, ImagenService storageHelper, android.content.Context context) {
             this.imagenes = imagenes != null ? imagenes : new ArrayList<>();
-            this.anuncioId = anuncioId;
+            this.id = id;
+            this.tipoCarpeta = tipoCarpeta;
             this.storageHelper = storageHelper;
             this.context = context;
         }
@@ -515,7 +612,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
             ImageView imageView = new ImageView(context);
             imageView.setLayoutParams(new android.view.ViewGroup.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT // Cambiado de getDimension a MATCH_PARENT
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT
             ));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             return new ImageViewHolder(imageView);
@@ -524,7 +621,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ImageViewHolder holder, int position) {
             String nombreImagen = imagenes.get(position);
-            String rutaStorage = "anuncios/" + anuncioId + "/" + nombreImagen;
+            String rutaStorage = tipoCarpeta + "/" + id + "/" + nombreImagen;
             storageHelper.obtenerUrlImagen(rutaStorage,
                 uri -> Glide.with(context)
                         .load(uri)

@@ -15,13 +15,70 @@
         android:padding="8dp"
         android:background="@color/footer_criadero">
 
+        <!-- Carrusel de imágenes cachorros -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:id="@+id/btnPrevCachorro"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_arrow_left"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="Anterior"
+                android:visibility="gone"
+                android:padding="4dp"/>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/anuncio_image_height"
+                android:layout_weight="1">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPagerCachorro"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    android:overScrollMode="never"/>
+
+                <ImageView
+                    android:id="@+id/btnFullscreenCachorro"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_fullscreen"
+                    android:background="@drawable/bg_chip"
+                    android:contentDescription="Pantalla completa"
+                    android:layout_gravity="top|end"
+                    android:padding="4dp"
+                    android:layout_margin="4dp"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+            <ImageView
+                android:id="@+id/btnNextCachorro"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_arrow_right"
+                android:background="?android:selectableItemBackground"
+                android:contentDescription="Siguiente"
+                android:visibility="gone"
+                android:padding="4dp"/>
+        </LinearLayout>
+
+        <!-- ImageView oculto para compatibilidad con el código Java -->
         <ImageView
             android:id="@+id/ivCachorro"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:contentDescription="Imagen del cachorro" />
-
+            android:contentDescription="Imagen del cachorro"
+            android:visibility="gone" />
 
         <!-- Nuevo LinearLayout horizontal para sexo y color -->
         <LinearLayout
