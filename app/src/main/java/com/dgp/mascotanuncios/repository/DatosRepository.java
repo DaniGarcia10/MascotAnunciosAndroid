@@ -37,4 +37,25 @@ public class DatosRepository {
                 callback.onRazasObtenidas(Collections.emptyList());
             });
     }
+
+    public interface ProvinciasCallback {
+        void onProvinciasObtenidas(List<String> provincias);
+    }
+
+    public void obtenerProvincias(final ProvinciasCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("datos").document("provincias").get()
+            .addOnSuccessListener(documentSnapshot -> {
+                List<String> lista = new ArrayList<>();
+                if (documentSnapshot.exists()) {
+                    lista = (List<String>) documentSnapshot.get("lista");
+                }
+                if (lista == null) lista = Collections.emptyList();
+                callback.onProvinciasObtenidas(lista);
+            })
+            .addOnFailureListener(e -> {
+                Log.e("DatosRepository", "Error al obtener provincias", e);
+                callback.onProvinciasObtenidas(Collections.emptyList());
+            });
+    }
 }

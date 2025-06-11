@@ -207,15 +207,57 @@ public class AnuncioDetailActivity extends AppCompatActivity {
 
         // Precio
         TextView tvPrecio = findViewById(R.id.tvPrecio);
-        if (anuncio.getPrecio() != null) {
-            int precioInt = anuncio.getPrecio().intValue();
-            tvPrecio.setText(precioInt + "€");
+
+        // --- Lógica para ocultar el precio del anuncio si corresponde ---
+        boolean ocultarPrecioAnuncio = false;
+        int cachorrosDisponibles = 0; // Declarar solo una vez aquí
+
+        if (anuncio.getEspecificar_cachorros() != null && anuncio.getEspecificar_cachorros()
+                && anuncio.getCachorros() != null && !anuncio.getCachorros().isEmpty()) {
+            for (Cachorro cachorro : anuncio.getCachorros()) {
+                if (cachorro.getDisponible() != null && cachorro.getDisponible()) {
+                    cachorrosDisponibles++;
+                }
+            }
+            if (cachorrosDisponibles > 0) {
+                ocultarPrecioAnuncio = true;
+            }
+        }
+
+        if (ocultarPrecioAnuncio) {
+            tvPrecio.setVisibility(View.GONE);
+        } else {
+            if (anuncio.getPrecio() != null) {
+                int precioInt = anuncio.getPrecio().intValue();
+                tvPrecio.setText(precioInt + "€");
+                tvPrecio.setVisibility(View.VISIBLE);
+            } else {
+                tvPrecio.setVisibility(View.GONE);
+            }
         }
 
         // Teléfono
         Button btnTelefono = findViewById(R.id.btnTelefono);
         btnTelefono.setOnClickListener(v -> {
-            Toast.makeText(this, "Teléfono: " + anuncio.getTelefono(), Toast.LENGTH_SHORT).show();
+            // Obtener el nombre del usuario y mostrar el diálogo
+            if (anuncio.getId_usuario() != null) {
+                FirebaseFirestore.getInstance().collection("usuarios").document(anuncio.getId_usuario())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        String nombreCompleto = documentSnapshot.getString("nombre");
+                        String primerNombre = "";
+                        if (nombreCompleto != null && !nombreCompleto.trim().isEmpty()) {
+                            String[] partes = nombreCompleto.trim().split("\\s+");
+                            primerNombre = partes.length > 0 ? partes[0] : nombreCompleto;
+                        }
+                        mostrarDialogoTelefono(primerNombre, anuncio.getTelefono());
+                    })
+                    .addOnFailureListener(e -> {
+                        mostrarDialogoTelefono("", anuncio.getTelefono());
+                    });
+            } else {
+                mostrarDialogoTelefono("", anuncio.getTelefono());
+            }
         });
 
         // Cargar datos del criadero
@@ -242,15 +284,8 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         // Cargar cachorros si existen y mostrar título si corresponde
         layoutCachorros.removeAllViews();
         boolean mostrarTituloCachorros = false;
-        int cachorrosDisponibles = 0;
 
         if (anuncio.getCachorros() != null && !anuncio.getCachorros().isEmpty()) {
-            // Contar cachorros disponibles
-            for (Cachorro cachorro : anuncio.getCachorros()) {
-                if (cachorro.getDisponible() != null && cachorro.getDisponible()) {
-                    cachorrosDisponibles++;
-                }
-            }
             // Mostrar título solo si especificar_cachorros es true y hay al menos 1 disponible
             if (anuncio.getEspecificar_cachorros() != null && anuncio.getEspecificar_cachorros() && cachorrosDisponibles > 0) {
                 mostrarTituloCachorros = true;
@@ -822,5 +857,39 @@ public class AnuncioDetailActivity extends AppCompatActivity {
                 Toast.makeText(AnuncioDetailActivity.this, "No se pudo cargar la información", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Nuevo método para mostrar el diálogo de teléfono y nombre
+    private void mostrarDialogoTelefono(String nombre, String telefono) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+
+        // Crear un layout personalizado para el diálogo
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(48, 48, 48, 24);
+
+        // Número de teléfono grande
+        TextView tvTelefono = new TextView(this);
+        tvTelefono.setText(telefono != null ? telefono : "-");
+        tvTelefono.setTextSize(28); // Más grande
+        tvTelefono.setTextColor(android.graphics.Color.BLACK);
+        tvTelefono.setGravity(android.view.Gravity.CENTER);
+        tvTelefono.setPadding(0, 24, 0, 24);
+
+        layout.addView(tvTelefono);
+
+        builder.setTitle("Teléfono de " + nombre)
+                .setView(layout)
+                .setPositiveButton("Cerrar", null);
+
+        android.app.AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dlg -> {
+            android.widget.Button btn = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+            // Cambia el color del botón a marron_app
+            int marronApp = getResources().getColor(R.color.marron_app);
+            btn.setTextColor(android.graphics.Color.WHITE);
+            btn.setBackgroundColor(marronApp);
+        });
+        dialog.show();
     }
 }

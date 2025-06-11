@@ -28,6 +28,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Variables para guardar selección de filtros
+    private String filtroTipoAnimal = "";
+    private String filtroRaza = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,14 +48,6 @@ public class MainActivity extends AppCompatActivity {
         ImageView bgImage = findViewById(R.id.bgImage);
         new ImagenService().cargarEnImageView(this, "inicio.webp", bgImage);
 
-        // Lógica para el botón de continuar
-        Button btnContinuar = findViewById(R.id.btnBuscar);
-        btnContinuar.setOnClickListener(v -> {
-            // Ir a AnunciosActivity
-            startActivity(new Intent(this, AnuncioActivity.class));
-
-        });
-
         // Referencias a los botones
         MaterialButton btnPerros = findViewById(R.id.btnPerros);
         MaterialButton btnGatos = findViewById(R.id.btnGatos);
@@ -66,22 +62,60 @@ public class MainActivity extends AppCompatActivity {
         // Inicialmente, spinner con placeholder en blanco
         spinnerRazas.setAdapter(new WhiteHintAdapter(this, new String[]{"Elige la raza"}));
 
-        // Listener para cambiar el color del texto al seleccionar y cargar razas
+        // Permitir deseleccionar ambos botones
+        toggleGroup.clearChecked();
+
         toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (checkedId == R.id.btnPerros && isChecked) {
-                btnPerros.setTextColor(getResources().getColor(android.R.color.black));
-                btnGatos.setTextColor(getResources().getColor(android.R.color.white));
-                // Cargar razas de perro desde Firestore
-                cargarRazasEnSpinner(spinnerRazas, datosRepository, "perro");
-            } else if (checkedId == R.id.btnGatos && isChecked) {
-                btnGatos.setTextColor(getResources().getColor(android.R.color.black));
-                btnPerros.setTextColor(getResources().getColor(android.R.color.white));
-                // Cargar razas de gato desde Firestore
-                cargarRazasEnSpinner(spinnerRazas, datosRepository, "gato");
-            } else if (!isChecked) {
-                // Si se deselecciona, limpiar el spinner
-                limpiarSpinner(spinnerRazas);
+            if (checkedId == R.id.btnPerros) {
+                if (isChecked) {
+                    btnPerros.setTextColor(getResources().getColor(android.R.color.black));
+                    btnGatos.setTextColor(getResources().getColor(android.R.color.white));
+                    filtroTipoAnimal = "perro";
+                    cargarRazasEnSpinner(spinnerRazas, datosRepository, "perro");
+                } else {
+                    btnPerros.setTextColor(getResources().getColor(android.R.color.white));
+                    filtroTipoAnimal = "";
+                    limpiarSpinner(spinnerRazas);
+                }
+            } else if (checkedId == R.id.btnGatos) {
+                if (isChecked) {
+                    btnGatos.setTextColor(getResources().getColor(android.R.color.black));
+                    btnPerros.setTextColor(getResources().getColor(android.R.color.white));
+                    filtroTipoAnimal = "gato";
+                    cargarRazasEnSpinner(spinnerRazas, datosRepository, "gato");
+                } else {
+                    btnGatos.setTextColor(getResources().getColor(android.R.color.white));
+                    filtroTipoAnimal = "";
+                    limpiarSpinner(spinnerRazas);
+                }
             }
+        });
+
+        // Guardar la raza seleccionada
+        spinnerRazas.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                String seleccion = (String) parent.getItemAtPosition(position);
+                if (position == 0 || seleccion.equalsIgnoreCase("Elige la raza")) {
+                    filtroRaza = "";
+                } else {
+                    filtroRaza = seleccion;
+                }
+            }
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                filtroRaza = "";
+            }
+        });
+
+        // Lógica para el botón de continuar
+        Button btnContinuar = findViewById(R.id.btnBuscar);
+        btnContinuar.setOnClickListener(v -> {
+            // Ir a AnunciosActivity con filtros si están seleccionados
+            Intent intent = new Intent(this, AnuncioActivity.class);
+            intent.putExtra("filtroTipoAnimal", filtroTipoAnimal); // Siempre enviar, aunque esté vacío
+            intent.putExtra("filtroRaza", filtroRaza); // Siempre enviar, aunque esté vacío
+            startActivity(intent);
         });
     }
 
