@@ -467,7 +467,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         View madreCard = findViewById(R.id.cardMadre);
 
         // Padre
-        if (anuncio.getId_padre() != null && anuncio.getId_padre().isEmpty()) { // <-- Corregido aquí
+        if (anuncio.getId_padre() != null && !anuncio.getId_padre().isEmpty()) {
             Log.d("IMAGENPADRES", "Buscando datos del padre con id: " + anuncio.getId_padre());
             mascotasRepository.obtenerMascotaPorId(anuncio.getId_padre(), new MascotasRepository.MascotaCallback() {
                 @Override
@@ -514,7 +514,7 @@ public class AnuncioDetailActivity extends AppCompatActivity {
         }
 
         // Madre
-        if (anuncio.getId_madre() != null && anuncio.getId_madre().isEmpty()) {
+        if (anuncio.getId_madre() != null && !anuncio.getId_madre().isEmpty()) {
             Log.d("IMAGENPADRES", "Buscando datos de la madre con id: " + anuncio.getId_madre());
             mascotasRepository.obtenerMascotaPorId(anuncio.getId_madre(), new MascotasRepository.MascotaCallback() {
                 @Override
